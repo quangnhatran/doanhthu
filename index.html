@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <!-- iPhone X + tai thỏ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Doanh Thu Bán Gà</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#0f1a33; --muted:#94a3b8; --text:#e2e8f0;
+      --line:#233256; --accent:#38bdf8; --danger:#fb7185; --ok:#34d399;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background: radial-gradient(1200px 700px at 20% -10%, #1b2a55 0%, transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, #123a52 0%, transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      padding-top: env(safe-area-inset-top);
+      padding-right: env(safe-area-inset-right);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+    }
+    .wrap{max-width:1100px; margin:28px auto; padding:0 16px;}
+    h1{margin:0 0 14px; font-size:22px; letter-spacing:.2px}
+    .grid{display:grid; gap:14px; grid-template-columns: 1fr;}
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .muted{color:var(--muted)}
+    .row{display:grid; gap:10px; grid-template-columns: repeat(6, 1fr); align-items:end}
+    .order-grid{display:grid; gap:10px; grid-template-columns: repeat(4, 1fr); align-items:end}
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+    input, select, textarea{
+      width:100%; padding:10px 10px;
+      border-radius:10px; border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+      font-family: inherit;
+    }
+    textarea{min-height:40px; resize:vertical}
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(56,189,248,.7);
+      box-shadow:0 0 0 3px rgba(56,189,248,.15)
+    }
+    .btns{display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+    button{
+      border:none; cursor:pointer; border-radius:10px;
+      padding:10px 12px; font-weight:600;
+      background: rgba(56,189,248,.14); color: #cbefff;
+      border:1px solid rgba(56,189,248,.25);
+    }
+    button:hover{filter:brightness(1.08)}
+    .danger{background: rgba(251,113,133,.14); border-color: rgba(251,113,133,.25); color:#ffd1d9}
+    .ok{background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.25); color:#d7ffee}
+    .table-wrap{overflow:auto; border-radius:12px; border:1px solid rgba(255,255,255,.10)}
+    table{width:100%; border-collapse:collapse; min-width:900px; background: rgba(0,0,0,.18)}
+    thead th{
+      text-align:left; font-size:12px; color:var(--muted);
+      padding:12px; background: rgba(255,255,255,.04);
+      border-bottom:1px solid rgba(255,255,255,.10);
+      position:sticky; top:0;
+      backdrop-filter: blur(6px);
+    }
+    tbody td{
+      padding:12px; border-bottom:1px solid rgba(255,255,255,.08);
+      vertical-align:middle;
+    }
+    tbody tr:hover{background: rgba(255,255,255,.03)}
+    .num{text-align:right; font-variant-numeric: tabular-nums;}
+    .totalbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      padding:12px; border:1px dashed rgba(255,255,255,.18);
+      border-radius:12px; background: rgba(0,0,0,.18);
+    }
+    .totalbar .big{font-size:18px; font-weight:800}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color:var(--muted); font-size:12px;
+    }
+    .hint{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.45}
+    .section-title{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px}
+    .section-title h2{margin:0; font-size:16px}
+    .section-title .muted{font-size:12px}
+
+    @media (max-width: 900px){
+      .row{grid-template-columns: 1fr; }
+      .order-grid{grid-template-columns: 1fr;}
+      .btns{justify-content:stretch}
+      button{flex:1}
+      table{min-width:760px;}
+    }
+
+    /* ==== iPhone X (375x812, DPR 3) - tối ưu riêng ==== */
+    @media only screen
+      and (device-width: 375px)
+      and (device-height: 812px)
+      and (-webkit-device-pixel-ratio: 3) {
+
+      .wrap{
+        margin: 14px auto;
+        padding: 0 12px;
+      }
+      h1{font-size: 18px; margin-bottom: 12px;}
+      .card{padding: 12px; border-radius: 12px;}
+
+      /* iOS: tránh auto-zoom khi focus input */
+      input, select, textarea{
+        font-size: 16px;
+        padding: 12px 12px;
+        border-radius: 12px;
+      }
+
+      .row, .order-grid{
+        grid-template-columns: 1fr;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .btns{width:100%; justify-content:stretch; gap:10px}
+      button{
+        width:100%;
+        padding: 12px 12px;
+        font-size: 15px;
+        border-radius: 12px;
+      }
+
+      .totalbar{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .totalbar .big{font-size: 18px;}
+      .pill{width:100%; justify-content: space-between; padding: 8px 10px;}
+
+      table{min-width:760px;}
+      thead th, tbody td{padding:10px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Doanh Thu Bán Gà</h1>
+
+    <div class="grid">
+      <!-- ====== DOANH THU ====== -->
+      <div class="card">
+        <div class="row">
+          <div>
+            <label for="date">Ngày</label>
+            <input id="date" type="date" />
+          </div>
+          <div>
+            <label for="rooster">Gà trống (con)</label>
+            <input id="rooster" type="number" min="0" step="1" value="0" />
+          </div>
+          <div>
+            <label for="hen">Gà mái (con)</label>
+            <input id="hen" type="number" min="0" step="1" value="0" />
+          </div>
+          <div>
+            <label for="price">Đơn giá (VND / con)</label>
+            <input id="price" type="number" min="0" step="1000" placeholder="Ví dụ: 120000" />
+          </div>
+          <div>
+            <label>Số gà đã bán</label>
+            <input id="sold" type="text" disabled value="0" />
+          </div>
+          <div>
+            <label>Thành tiền</label>
+            <input id="amount" type="text" disabled value="0 ₫" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap">
+          <div class="pill">Tự tính: <b>Số gà đã bán = trống + mái</b></div>
+          <div class="btns">
+            <button class="ok" id="addBtn">+ Thêm dòng</button>
+            <button id="exportBtn">Xuất CSV</button>
+            <button class="danger" id="clearBtn">Xoá tất cả</button>
+          </div>
+        </div>
+
+        <div class="hint">
+          Dữ liệu được lưu trong trình duyệt (localStorage). Mở lại file vẫn còn dữ liệu.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="totalbar">
+          <div>
+            <div class="muted">Tổng danh thu</div>
+            <div class="big" id="grandTotal">0 ₫</div>
+          </div>
+          <div class="pill">
+            Tổng số gà:
+            <b id="grandSold">0</b>
+            (Trống <b id="grandRooster">0</b> · Mái <b id="grandHen">0</b>)
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ngày</th>
+                <th class="num">Gà trống</th>
+                <th class="num">Gà mái</th>
+                <th class="num">Số gà đã bán</th>
+                <th class="num">Đơn giá</th>
+                <th class="num">Thành tiền</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== BẢNG NOTE ĐẶT HÀNG ====== -->
+      <div class="card">
+        <div class="section-title">
+          <h2>Note đặt hàng</h2>
+          <div class="muted">Lưu danh sách khách đặt / ghi chú giao hàng</div>
+        </div>
+
+        <div class="order-grid">
+          <div>
+            <label for="orderDate">Ngày đặt</label>
+            <input id="orderDate" type="datetime-local"/>
+          </div>
+          <div>
+            <label for="customer">Tên khách</label>
+            <input id="customer" type="text" placeholder="Ví dụ: Anh Nam"/>
+          </div>
+          <div>
+            <label for="phone">SĐT</label>
+            <input id="phone" type="tel" placeholder="Ví dụ: 09xxxxxxxx"/>
+          </div>
+          <div>
+            <label for="status">Trạng thái</label>
+            <select id="status">
+              <option value="Mới">Mới</option>
+              <option value="Đang xử lý">Đang xử lý</option>
+              <option value="Đã giao">Đã giao</option>
+              <option value="Huỷ">Huỷ</option>
+            </select>
+          </div>
+
+          <div style="grid-column: 1 / -1;">
+            <label for="orderContent">Nội dung đặt (gà trống/mái, số lượng, giờ giao...)</label>
+            <textarea id="orderContent" placeholder="Ví dụ: 2 gà trống + 3 gà mái, giao 18:30"></textarea>
+          </div>
+
+          <div style="grid-column: 1 / -1;">
+            <label for="orderNote">Ghi chú</label>
+            <textarea id="orderNote" placeholder="Ví dụ: Khách trả tiền mặt, gọi trước 10 phút"></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap">
+          <div class="pill">Tổng đơn: <b id="orderCount">0</b></div>
+          <div class="btns">
+            <button class="ok" id="addOrderBtn">+ Thêm note</button>
+            <button id="exportOrderBtn">Xuất CSV</button>
+            <button class="danger" id="clearOrderBtn">Xoá tất cả</button>
+          </div>
+        </div>
+
+        <div class="hint">
+          Mẹo: Bạn có thể dùng “Trạng thái” để theo dõi đơn (Mới → Đang xử lý → Đã giao).
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table style="min-width: 980px;">
+            <thead>
+              <tr>
+                <th>Ngày đặt</th>
+                <th>Khách</th>
+                <th>SĐT</th>
+                <th>Nội dung đặt</th>
+                <th>Ghi chú</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="orderTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    const VND = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
+    const fmtMoney = (n) => VND.format(Number.isFinite(n) ? n : 0);
+    const toInt = (v) => {
+      const n = Math.floor(Number(v));
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    };
+    const toNum = (v) => {
+      const n = Number(v);
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    };
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
+
+    // ===== State =====
+    const LS_REVENUE = "ga_doanh_thu_v1";
+    const LS_ORDERS  = "ga_orders_v1";
+    let rows = [];
+    let orders = [];
+
+    // ===== DOM (Doanh thu) =====
+    const $date = document.getElementById("date");
+    const $rooster = document.getElementById("rooster");
+    const $hen = document.getElementById("hen");
+    const $price = document.getElementById("price");
+    const $sold = document.getElementById("sold");
+    const $amount = document.getElementById("amount");
+    const $tbody = document.getElementById("tbody");
+
+    const $grandTotal = document.getElementById("grandTotal");
+    const $grandSold = document.getElementById("grandSold");
+    const $grandRooster = document.getElementById("grandRooster");
+    const $grandHen = document.getElementById("grandHen");
+
+    const $addBtn = document.getElementById("addBtn");
+    const $clearBtn = document.getElementById("clearBtn");
+    const $exportBtn = document.getElementById("exportBtn");
+
+    // ===== DOM (Orders) =====
+    const $orderDate = document.getElementById("orderDate");
+    const $customer = document.getElementById("customer");
+    const $phone = document.getElementById("phone");
+    const $status = document.getElementById("status");
+    const $orderContent = document.getElementById("orderContent");
+    const $orderNote = document.getElementById("orderNote");
+    const $orderCount = document.getElementById("orderCount");
+    const $orderTbody = document.getElementById("orderTbody");
+
+    const $addOrderBtn = document.getElementById("addOrderBtn");
+    const $clearOrderBtn = document.getElementById("clearOrderBtn");
+    const $exportOrderBtn = document.getElementById("exportOrderBtn");
+
+    // ===== Init date inputs =====
+    (function initDates(){
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,"0");
+      const dd = String(today.getDate()).padStart(2,"0");
+      $date.value = `${yyyy}-${mm}-${dd}`;
+
+      // datetime-local default: now (yyyy-mm-ddThh:mm)
+      const hh = String(today.getHours()).padStart(2,"0");
+      const mi = String(today.getMinutes()).padStart(2,"0");
+      $orderDate.value = `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    })();
+
+    // ===== Live calc (Doanh thu) =====
+    function calcPreview(){
+      const r = toInt($rooster.value);
+      const h = toInt($hen.value);
+      const p = toNum($price.value);
+      const sold = r + h;
+      const amount = sold * p;
+      $sold.value = sold;
+      $amount.value = fmtMoney(amount);
+    }
+    [$rooster, $hen, $price].forEach(el => el.addEventListener("input", calcPreview));
+    calcPreview();
+
+    // ===== Persistence =====
+    function saveRevenue(){ localStorage.setItem(LS_REVENUE, JSON.stringify(rows)); }
+    function loadRevenue(){
+      try{
+        const raw = localStorage.getItem(LS_REVENUE);
+        rows = raw ? JSON.parse(raw) : [];
+        if(!Array.isArray(rows)) rows = [];
+      }catch{ rows = []; }
+    }
+    function saveOrders(){ localStorage.setItem(LS_ORDERS, JSON.stringify(orders)); }
+    function loadOrders(){
+      try{
+        const raw = localStorage.getItem(LS_ORDERS);
+        orders = raw ? JSON.parse(raw) : [];
+        if(!Array.isArray(orders)) orders = [];
+      }catch{ orders = []; }
+    }
+
+    // ===== Render (Doanh thu) =====
+    function renderRevenue(){
+      $tbody.innerHTML = "";
+      let totalMoney = 0, totalSold = 0, totalR = 0, totalH = 0;
+
+      rows.forEach((row, idx) => {
+        const tr = document.createElement("tr");
+        const sold = row.rooster + row.hen;
+        const amount = sold * row.price;
+
+        totalMoney += amount;
+        totalSold += sold;
+        totalR += row.rooster;
+        totalH += row.hen;
+
+        tr.innerHTML = `
+          <td>${esc(row.date || "")}</td>
+          <td class="num">${row.rooster}</td>
+          <td class="num">${row.hen}</td>
+          <td class="num"><b>${sold}</b></td>
+          <td class="num">${fmtMoney(row.price)}</td>
+          <td class="num"><b>${fmtMoney(amount)}</b></td>
+          <td>
+            <button class="danger" data-del="${idx}" title="Xoá dòng">Xoá</button>
+          </td>
+        `;
+        $tbody.appendChild(tr);
+      });
+
+      $grandTotal.textContent = fmtMoney(totalMoney);
+      $grandSold.textContent = totalSold;
+      $grandRooster.textContent = totalR;
+      $grandHen.textContent = totalH;
+    }
+
+    // ===== Render (Orders) =====
+    function renderOrders(){
+      $orderTbody.innerHTML = "";
+      $orderCount.textContent = orders.length;
+
+      orders.forEach((o, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${esc(o.orderDate || "")}</td>
+          <td>${esc(o.customer || "")}</td>
+          <td>${esc(o.phone || "")}</td>
+          <td>${esc(o.content || "")}</td>
+          <td>${esc(o.note || "")}</td>
+          <td><b>${esc(o.status || "Mới")}</b></td>
+          <td>
+            <button class="danger" data-odel="${idx}" title="Xoá note">Xoá</button>
+          </td>
+        `;
+        $orderTbody.appendChild(tr);
+      });
+    }
+
+    // ===== Actions (Doanh thu) =====
+    $addBtn.addEventListener("click", () => {
+      const date = $date.value;
+      const rooster = toInt($rooster.value);
+      const hen = toInt($hen.value);
+      const price = toNum($price.value);
+
+      if(!date){
+        alert("Vui lòng chọn ngày.");
+        return;
+      }
+      if(rooster + hen === 0){
+        alert("Số gà đã bán phải > 0 (trống + mái).");
+        return;
+      }
+      if(price === 0){
+        alert("Vui lòng nhập đơn giá > 0.");
+        return;
+      }
+
+      rows.unshift({ date, rooster, hen, price });
+      saveRevenue();
+      renderRevenue();
+
+      $rooster.value = 0;
+      $hen.value = 0;
+      $price.value = "";
+      calcPreview();
+      $price.focus();
+    });
+
+    $tbody.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-del]");
+      if(!btn) return;
+      const idx = Number(btn.getAttribute("data-del"));
+      if(!Number.isFinite(idx)) return;
+      rows.splice(idx, 1);
+      saveRevenue();
+      renderRevenue();
+    });
+
+    $clearBtn.addEventListener("click", () => {
+      if(!rows.length) return;
+      if(confirm("Xoá toàn bộ dữ liệu doanh thu?")) {
+        rows = [];
+        saveRevenue();
+        renderRevenue();
+      }
+    });
+
+    $exportBtn.addEventListener("click", () => {
+      const header = ["Ngay","Ga_trong","Ga_mai","So_ga_da_ban","Don_gia","Thanh_tien"];
+      const lines = [header.join(",")];
+
+      rows.slice().reverse().forEach(r => {
+        const sold = r.rooster + r.hen;
+        const amount = sold * r.price;
+        lines.push([r.date, r.rooster, r.hen, sold, r.price, amount].join(","));
+      });
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "doanh_thu_ban_ga.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // ===== Actions (Orders) =====
+    $addOrderBtn.addEventListener("click", () => {
+      const orderDate = $orderDate.value;
+      const customer = $customer.value.trim();
+      const phone = $phone.value.trim();
+      const status = $status.value;
+      const content = $orderContent.value.trim();
+      const note = $orderNote.value.trim();
+
+      if(!orderDate){
+        alert("Vui lòng chọn ngày đặt.");
+        return;
+      }
+      if(!customer && !phone){
+        alert("Nhập ít nhất Tên khách hoặc SĐT.");
+        return;
+      }
+      if(!content){
+        alert("Vui lòng nhập Nội dung đặt.");
+        return;
+      }
+
+      orders.unshift({ orderDate, customer, phone, status, content, note });
+      saveOrders();
+      renderOrders();
+
+      // reset nhanh (giữ ngày đặt)
+      $customer.value = "";
+      $phone.value = "";
+      $status.value = "Mới";
+      $orderContent.value = "";
+      $orderNote.value = "";
+      $customer.focus();
+    });
+
+    $orderTbody.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-odel]");
+      if(!btn) return;
+      const idx = Number(btn.getAttribute("data-odel"));
+      if(!Number.isFinite(idx)) return;
+      orders.splice(idx, 1);
+      saveOrders();
+      renderOrders();
+    });
+
+    $clearOrderBtn.addEventListener("click", () => {
+      if(!orders.length) return;
+      if(confirm("Xoá toàn bộ note đặt hàng?")) {
+        orders = [];
+        saveOrders();
+        renderOrders();
+      }
+    });
+
+    $exportOrderBtn.addEventListener("click", () => {
+      const header = ["Ngay_dat","Khach","SDT","Noi_dung","Ghi_chu","Trang_thai"];
+      const lines = [header.join(",")];
+
+      orders.slice().reverse().forEach(o => {
+        const row = [
+          (o.orderDate || "").replaceAll(",", " "),
+          (o.customer || "").replaceAll(",", " "),
+          (o.phone || "").replaceAll(",", " "),
+          (o.content || "").replaceAll(",", " "),
+          (o.note || "").replaceAll(",", " "),
+          (o.status || "").replaceAll(",", " ")
+        ];
+        lines.push(row.join(","));
+      });
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "note_dat_hang_ban_ga.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // ===== Start =====
+    loadRevenue();
+    loadOrders();
+    renderRevenue();
+    renderOrders();
+  </script>
+</body>
+</html>
