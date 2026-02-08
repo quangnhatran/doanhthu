@@ -7,7 +7,7 @@
   <style>
     :root{
       --bg:#0b1220; --muted:#94a3b8; --text:#e2e8f0;
-      --danger:#fb7185; --ok:#34d399; --info:#38bdf8;
+      --danger:#fb7185; --ok:#34d399;
     }
     *{box-sizing:border-box}
     body{
@@ -35,10 +35,10 @@
     .muted{color:var(--muted)}
     label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
 
-    /* Form doanh thu: 10 ô */
+    /* Form doanh thu: thêm Tên KH + Lịch âm => 12 ô */
     .row{
       display:grid; gap:10px;
-      grid-template-columns: repeat(10, 1fr);
+      grid-template-columns: repeat(12, 1fr);
       align-items:end
     }
 
@@ -70,7 +70,6 @@
     .danger{background: rgba(251,113,133,.14); border-color: rgba(251,113,133,.25); color:#ffd1d9}
     .ok{background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.25); color:#d7ffee}
     .ghost{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color:#e2e8f0}
-
     .btn-mini{
       padding:7px 10px;
       font-size:13px;
@@ -83,7 +82,7 @@
     }
 
     .table-wrap{overflow:auto; border-radius:12px; border:1px solid rgba(255,255,255,.10)}
-    table{width:100%; border-collapse:collapse; min-width:1300px; background: rgba(0,0,0,.18)}
+    table{width:100%; border-collapse:collapse; min-width:1500px; background: rgba(0,0,0,.18)}
     thead th{
       text-align:left; font-size:12px; color:var(--muted);
       padding:12px; background: rgba(255,255,255,.04);
@@ -121,7 +120,7 @@
       .order-grid{grid-template-columns: 1fr;}
       .btns{justify-content:stretch}
       button{flex:1}
-      table{min-width:1200px;}
+      table{min-width:1400px;}
     }
 
     /* ==== iPhone X (375x812, DPR 3) - tối ưu riêng ==== */
@@ -156,7 +155,7 @@
       .totalbar .big{font-size: 18px;}
       .pill{width:100%; justify-content: space-between; padding: 8px 10px;}
 
-      table{min-width:1200px;}
+      table{min-width:1400px;}
       thead th, tbody td{padding:10px;}
     }
   </style>
@@ -166,12 +165,22 @@
     <h1>Doanh Thu Bán Gà</h1>
 
     <div class="grid">
-      <!-- ====== DOANH THU (số con + kg + 2 đơn giá) ====== -->
+      <!-- ====== DOANH THU (số con + kg + 2 đơn giá + tên KH + lịch âm) ====== -->
       <div class="card" id="revenueCard">
         <div class="row">
           <div>
-            <label for="date">Ngày</label>
+            <label for="date">Ngày (Dương lịch)</label>
             <input id="date" type="date" />
+          </div>
+
+          <div>
+            <label for="customerName">Tên khách hàng</label>
+            <input id="customerName" type="text" placeholder="Ví dụ: Anh Nam" />
+          </div>
+
+          <div>
+            <label for="lunarDate">Lịch âm (VN)</label>
+            <input id="lunarDate" type="text" placeholder="Ví dụ: 15/01/2026" />
           </div>
 
           <div>
@@ -228,9 +237,7 @@
           Bạn đang <b>sửa</b> một dòng. Nhấn <b>Cập nhật</b> để lưu, hoặc <b>Huỷ sửa</b>.
         </div>
 
-        <div class="hint">
-          Dữ liệu lưu trong trình duyệt (localStorage). Mở lại file vẫn còn.
-        </div>
+        
       </div>
 
       <div class="card">
@@ -253,7 +260,9 @@
           <table>
             <thead>
               <tr>
-                <th>Ngày</th>
+                <th>Ngày (DL)</th>
+                <th>Lịch âm</th>
+                <th>Khách hàng</th>
 
                 <th class="num">Trống (con)</th>
                 <th class="num">Trống (kg)</th>
@@ -329,9 +338,7 @@
           Bạn đang <b>sửa</b> một note. Nhấn <b>Cập nhật</b> để lưu, hoặc <b>Huỷ sửa</b>.
         </div>
 
-        <div class="hint">
-          Mẹo: Dùng “Trạng thái” để theo dõi đơn (Mới → Đang xử lý → Đã giao).
-        </div>
+       
       </div>
 
       <div class="card">
@@ -384,18 +391,155 @@
       try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch {}
     };
 
+    // ===== Vietnamese Lunar Calendar (solar -> lunar) =====
+    // Dựa theo thuật toán phổ biến (độ chính xác thực tế tốt), timezone VN = 7
+    const PI = Math.PI;
+
+    function INT(d){ return Math.floor(d); }
+
+    function jdFromDate(dd, mm, yy) {
+      const a = INT((14 - mm) / 12);
+      const y = yy + 4800 - a;
+      const m = mm + 12 * a - 3;
+      let jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - INT(y / 100) + INT(y / 400) - 32045;
+      if (jd < 2299161) {
+        jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - 32083;
+      }
+      return jd;
+    }
+
+    function NewMoon(k) {
+      const T = k / 1236.85;
+      const T2 = T * T;
+      const T3 = T2 * T;
+      const dr = PI / 180;
+      let Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+      Jd1 += 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
+      const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
+      const Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
+      const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
+      let C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
+      C1 -= 0.4068 * Math.sin(Mpr * dr) + 0.0161 * Math.sin(dr * 2 * Mpr);
+      C1 -= 0.0004 * Math.sin(dr * 3 * Mpr);
+      C1 += 0.0104 * Math.sin(dr * 2 * F) - 0.0051 * Math.sin(dr * (M + Mpr));
+      C1 -= 0.0074 * Math.sin(dr * (M - Mpr)) + 0.0004 * Math.sin(dr * (2 * F + M));
+      C1 -= 0.0004 * Math.sin(dr * (2 * F - M)) - 0.0006 * Math.sin(dr * (2 * F + Mpr));
+      C1 += 0.0010 * Math.sin(dr * (2 * F - Mpr)) + 0.0005 * Math.sin(dr * (2 * Mpr + M));
+      let deltat;
+      if (T < -11) {
+        deltat = 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3;
+      } else {
+        deltat = -0.000278 + 0.000265 * T + 0.000262 * T2;
+      }
+      return Jd1 + C1 - deltat;
+    }
+
+    function SunLongitude(jdn) {
+      const T = (jdn - 2451545.0) / 36525;
+      const T2 = T * T;
+      const dr = PI / 180;
+      const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+      const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+      let DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M);
+      DL += (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+      let L = L0 + DL;
+      L = L * dr;
+      L = L - PI * 2 * INT(L / (PI * 2));
+      return L;
+    }
+
+    function getSunLongitude(dayNumber, timeZone) {
+      return INT(SunLongitude(dayNumber - 0.5 - timeZone / 24) / PI * 6);
+    }
+
+    function getNewMoonDay(k, timeZone) {
+      return INT(NewMoon(k) + 0.5 + timeZone / 24);
+    }
+
+    function getLunarMonth11(yy, timeZone) {
+      const off = jdFromDate(31, 12, yy) - 2415021;
+      const k = INT(off / 29.530588853);
+      let nm = getNewMoonDay(k, timeZone);
+      const sunLong = getSunLongitude(nm, timeZone);
+      if (sunLong >= 9) {
+        nm = getNewMoonDay(k - 1, timeZone);
+      }
+      return nm;
+    }
+
+    function getLeapMonthOffset(a11, timeZone) {
+      const k = INT(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+      let last = 0;
+      let i = 1;
+      let arc = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
+      do {
+        last = arc;
+        i++;
+        arc = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
+      } while (arc !== last && i < 14);
+      return i - 1;
+    }
+
+    function convertSolar2Lunar(dd, mm, yy, timeZone) {
+      const dayNumber = jdFromDate(dd, mm, yy);
+      const k = INT((dayNumber - 2415021.076998695) / 29.530588853);
+      let monthStart = getNewMoonDay(k + 1, timeZone);
+      if (monthStart > dayNumber) monthStart = getNewMoonDay(k, timeZone);
+
+      let a11 = getLunarMonth11(yy, timeZone);
+      let b11 = a11;
+      let lunarYear;
+
+      if (a11 >= monthStart) {
+        lunarYear = yy;
+        a11 = getLunarMonth11(yy - 1, timeZone);
+      } else {
+        lunarYear = yy + 1;
+        b11 = getLunarMonth11(yy + 1, timeZone);
+      }
+
+      const lunarDay = dayNumber - monthStart + 1;
+      const diff = INT((monthStart - a11) / 29);
+      let lunarMonth = diff + 11;
+      let lunarLeap = 0;
+
+      if (b11 - a11 > 365) {
+        const leapMonthDiff = getLeapMonthOffset(a11, timeZone);
+        if (diff >= leapMonthDiff) {
+          lunarMonth = diff + 10;
+          if (diff === leapMonthDiff) lunarLeap = 1;
+        }
+      }
+
+      if (lunarMonth > 12) lunarMonth -= 12;
+      if (lunarMonth >= 11 && diff < 4) lunarYear -= 1;
+
+      return [lunarDay, lunarMonth, lunarYear, lunarLeap];
+    }
+
+    function fmtLunarFromISODate(isoDateStr){
+      if(!isoDateStr) return "";
+      const [y, m, d] = isoDateStr.split("-").map(Number);
+      if(!y || !m || !d) return "";
+      const [ld, lm, ly, leap] = convertSolar2Lunar(d, m, y, 7);
+      const dd = String(ld).padStart(2,"0");
+      const mm = String(lm).padStart(2,"0");
+      return `${dd}/${mm}/${ly}${leap ? " (Nhuận)" : ""}`;
+    }
+
     // ===== State =====
-    const LS_REVENUE = "ga_doanh_thu_con_kg_v2";
+    const LS_REVENUE = "ga_doanh_thu_con_kg_v3_lunar";
     const LS_ORDERS  = "ga_orders_v2";
     let rows = [];
     let orders = [];
-
     let editingRevenueIndex = null;
     let editingOrderIndex = null;
 
     // ===== DOM (Doanh thu) =====
     const $revenueCard = document.getElementById("revenueCard");
     const $date = document.getElementById("date");
+    const $customerName = document.getElementById("customerName");
+    const $lunarDate = document.getElementById("lunarDate");
 
     const $roosterCount = document.getElementById("roosterCount");
     const $roosterKg = document.getElementById("roosterKg");
@@ -408,7 +552,6 @@
     const $totalCount = document.getElementById("totalCount");
     const $totalKg = document.getElementById("totalKg");
     const $amount = document.getElementById("amount");
-
     const $tbody = document.getElementById("tbody");
 
     const $grandTotal = document.getElementById("grandTotal");
@@ -457,6 +600,18 @@
       $orderDate.value = `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
     })();
 
+    // ===== Auto fill lunar date when date changes (but don't overwrite if user edited manually) =====
+    let lastAutoLunar = "";
+    function syncLunarFromDate(){
+      const auto = fmtLunarFromISODate($date.value);
+      if(!$lunarDate.value || $lunarDate.value === lastAutoLunar){
+        $lunarDate.value = auto;
+      }
+      lastAutoLunar = auto;
+    }
+    $date.addEventListener("change", syncLunarFromDate);
+    syncLunarFromDate();
+
     // ===== Live calc =====
     function calcPreview(){
       const rC = toInt($roosterCount.value);
@@ -490,9 +645,13 @@
 
       rows = rows.map(r => ({
         date: r?.date ?? "",
+        lunarDate: r?.lunarDate ?? "",
+        customerName: r?.customerName ?? "",
+
         roosterCount: toInt(r?.roosterCount),
         roosterKg: toKg(r?.roosterKg),
         roosterPrice: toNum(r?.roosterPrice),
+
         henCount: toInt(r?.henCount),
         henKg: toKg(r?.henKg),
         henPrice: toNum(r?.henPrice),
@@ -516,9 +675,12 @@
     }
     function resetRevenueForm(keepDate=true){
       if(!keepDate){
-        // nếu muốn reset ngày thì bỏ comment
         // $date.value = "";
       }
+      $customerName.value = "";
+      // lịch âm sẽ sync theo ngày dương (nếu user muốn giữ thì cứ giữ)
+      syncLunarFromDate();
+
       $roosterCount.value = 0;
       $henCount.value = 0;
       $roosterKg.value = 0;
@@ -547,6 +709,8 @@
     // ===== Validate revenue input =====
     function getRevenueFormDataOrAlert(){
       const date = $date.value;
+      const customerName = $customerName.value.trim();
+      const lunarDate = $lunarDate.value.trim();
 
       const roosterCount = toInt($roosterCount.value);
       const henCount = toInt($henCount.value);
@@ -558,9 +722,13 @@
       const henPrice = toNum($henPrice.value);
 
       if(!date){
-        alert("Vui lòng chọn ngày.");
+        alert("Vui lòng chọn ngày (dương lịch).");
         return null;
       }
+
+      // nếu lunar trống thì tự fill
+      const lunarFinal = lunarDate || fmtLunarFromISODate(date);
+
       if(roosterKg + henKg <= 0){
         alert("Tổng kg phải > 0 (vì tính tiền theo kg).");
         return null;
@@ -574,7 +742,14 @@
         return null;
       }
 
-      return { date, roosterCount, roosterKg, roosterPrice, henCount, henKg, henPrice };
+      return {
+        date,
+        lunarDate: lunarFinal,
+        customerName,
+
+        roosterCount, roosterKg, roosterPrice,
+        henCount, henKg, henPrice
+      };
     }
 
     // ===== Render Revenue =====
@@ -606,6 +781,8 @@
 
         tr.innerHTML = `
           <td>${esc(row.date)}</td>
+          <td>${esc(row.lunarDate || "")}</td>
+          <td>${esc(row.customerName || "")}</td>
 
           <td class="num">${row.roosterCount}</td>
           <td class="num">${NF.format(row.roosterKg)}</td>
@@ -677,7 +854,7 @@
       editingRevenueIndex = null;
       setRevenueEditing(false);
       resetRevenueForm(true);
-      $roosterCount.focus();
+      $customerName.focus();
     });
 
     $cancelEditBtn.addEventListener("click", () => {
@@ -695,7 +872,6 @@
         const idx = Number(delBtn.getAttribute("data-del"));
         if(!Number.isFinite(idx)) return;
 
-        // nếu đang sửa đúng dòng đó, huỷ sửa
         if(editingRevenueIndex === idx){
           editingRevenueIndex = null;
           setRevenueEditing(false);
@@ -718,16 +894,24 @@
         setRevenueEditing(true);
 
         $date.value = r.date || "";
+        // sync lunar from date first, then overwrite by saved lunar (nếu có)
+        syncLunarFromDate();
+        $lunarDate.value = r.lunarDate || $lunarDate.value;
+
+        $customerName.value = r.customerName || "";
+
         $roosterCount.value = r.roosterCount ?? 0;
         $roosterKg.value = r.roosterKg ?? 0;
         $roosterPrice.value = r.roosterPrice ?? "";
+
         $henCount.value = r.henCount ?? 0;
         $henKg.value = r.henKg ?? 0;
         $henPrice.value = r.henPrice ?? "";
+
         calcPreview();
 
         scrollToEl($revenueCard);
-        $roosterCount.focus();
+        $customerName.focus();
       }
     });
 
@@ -745,7 +929,7 @@
 
     $exportBtn.addEventListener("click", () => {
       const header = [
-        "Ngay",
+        "Ngay_duong_lich","Lich_am","Ten_khach_hang",
         "Trong_con","Trong_kg","Gia_trong_vnd_kg",
         "Mai_con","Mai_kg","Gia_mai_vnd_kg",
         "Tong_con","Tong_kg","Thanh_tien"
@@ -757,8 +941,13 @@
         const kSum = r.roosterKg + r.henKg;
         const amount = (r.roosterKg * r.roosterPrice) + (r.henKg * r.henPrice);
 
+        const safe = (s) => String(s ?? "").replaceAll(",", " ");
+
         lines.push([
-          r.date,
+          safe(r.date),
+          safe(r.lunarDate),
+          safe(r.customerName),
+
           r.roosterCount, r.roosterKg, r.roosterPrice,
           r.henCount, r.henKg, r.henPrice,
           cSum, kSum, amount
@@ -769,7 +958,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "doanh_thu_ban_ga_con_kg.csv";
+      a.download = "doanh_thu_ban_ga_con_kg_lich_am.csv";
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -911,6 +1100,8 @@
     renderRevenue();
     renderOrders();
     calcPreview();
+    // nếu form lunar đang trống, tự sync luôn
+    syncLunarFromDate();
   </script>
 </body>
 </html>
