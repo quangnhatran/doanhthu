@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <!-- iPhone X + tai thỏ -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Doanh Thu Bán Gà</title>
   <style>
@@ -21,7 +22,7 @@
       padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
     }
-    .wrap{max-width:1100px; margin:28px auto; padding:0 16px;}
+    .wrap{max-width:1180px; margin:28px auto; padding:0 16px;}
     h1{margin:0 0 14px; font-size:22px; letter-spacing:.2px}
     .grid{display:grid; gap:14px; grid-template-columns: 1fr;}
     .card{
@@ -35,14 +36,20 @@
     .muted{color:var(--muted)}
     label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
 
-    /* Form doanh thu: thêm Tên KH + Lịch âm => 12 ô */
+    /* Revenue form: nhiều ô -> desktop dàn ngang, mobile 1 cột */
     .row{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(14, 1fr);
+      align-items:end
+    }
+
+    .order-grid{display:grid; gap:10px; grid-template-columns: repeat(5, 1fr); align-items:end}
+
+    .damage-row{
       display:grid; gap:10px;
       grid-template-columns: repeat(12, 1fr);
       align-items:end
     }
-
-    .order-grid{display:grid; gap:10px; grid-template-columns: repeat(4, 1fr); align-items:end}
 
     input, select, textarea{
       width:100%; padding:10px 10px;
@@ -82,7 +89,11 @@
     }
 
     .table-wrap{overflow:auto; border-radius:12px; border:1px solid rgba(255,255,255,.10)}
-    table{width:100%; border-collapse:collapse; min-width:1500px; background: rgba(0,0,0,.18)}
+    table{width:100%; border-collapse:collapse; background: rgba(0,0,0,.18)}
+    .t-revenue{min-width:1780px;}
+    .t-orders{min-width:1180px;}
+    .t-damage{min-width:1500px;}
+
     thead th{
       text-align:left; font-size:12px; color:var(--muted);
       padding:12px; background: rgba(255,255,255,.04);
@@ -101,6 +112,7 @@
       display:flex; gap:12px; align-items:center; justify-content:space-between;
       padding:12px; border:1px dashed rgba(255,255,255,.18);
       border-radius:12px; background: rgba(0,0,0,.18);
+      flex-wrap:wrap;
     }
     .totalbar .big{font-size:18px; font-weight:800}
     .pill{
@@ -116,11 +128,9 @@
     .section-title .muted{font-size:12px}
 
     @media (max-width: 900px){
-      .row{grid-template-columns: 1fr;}
-      .order-grid{grid-template-columns: 1fr;}
+      .row, .order-grid, .damage-row{grid-template-columns: 1fr;}
       .btns{justify-content:stretch}
       button{flex:1}
-      table{min-width:1400px;}
     }
 
     /* ==== iPhone X (375x812, DPR 3) - tối ưu riêng ==== */
@@ -133,7 +143,7 @@
       h1{font-size: 18px; margin-bottom: 12px;}
       .card{padding: 12px; border-radius: 12px;}
 
-      .row, .order-grid{
+      .row, .order-grid, .damage-row{
         grid-template-columns: 1fr;
         gap: 10px;
         align-items: stretch;
@@ -154,9 +164,6 @@
       }
       .totalbar .big{font-size: 18px;}
       .pill{width:100%; justify-content: space-between; padding: 8px 10px;}
-
-      table{min-width:1400px;}
-      thead th, tbody td{padding:10px;}
     }
   </style>
 </head>
@@ -165,99 +172,107 @@
     <h1>Doanh Thu Bán Gà</h1>
 
     <div class="grid">
-      <!-- ====== DOANH THU (số con + kg + 2 đơn giá + tên KH + lịch âm) ====== -->
+      <!-- ======================= DOANH THU ======================= -->
       <div class="card" id="revenueCard">
         <div class="row">
           <div>
-            <label for="date">Ngày (Dương lịch)</label>
-            <input id="date" type="date" />
+            <label for="revDate">Ngày (Dương lịch)</label>
+            <input id="revDate" type="date" />
           </div>
 
           <div>
-            <label for="customerName">Tên khách hàng</label>
-            <input id="customerName" type="text" placeholder="Ví dụ: Anh Nam" />
+            <label for="revCustomerName">Tên khách hàng</label>
+            <input id="revCustomerName" type="text" placeholder="Ví dụ: Anh Nam" />
           </div>
 
           <div>
-            <label for="lunarDate">Lịch âm (VN)</label>
-            <input id="lunarDate" type="text" placeholder="Ví dụ: 15/01/2026" />
+            <label for="revLunarDate">Lịch âm (VN)</label>
+            <input id="revLunarDate" type="text" placeholder="VD: 15/01/2026" />
           </div>
 
           <div>
-            <label for="roosterCount">Gà trống (con)</label>
-            <input id="roosterCount" type="number" min="0" step="1" value="0" />
+            <label for="revRoosterCount">Gà trống (con)</label>
+            <input id="revRoosterCount" type="number" min="0" step="1" value="0" />
           </div>
           <div>
-            <label for="roosterKg">Gà trống (kg)</label>
-            <input id="roosterKg" type="number" min="0" step="0.1" value="0" />
+            <label for="revRoosterKg">Gà trống (kg)</label>
+            <input id="revRoosterKg" type="number" min="0" step="0.1" value="0" />
           </div>
           <div>
-            <label for="roosterPrice">Đơn giá trống (VND/kg)</label>
-            <input id="roosterPrice" type="number" min="0" step="1000" placeholder="Ví dụ: 120000" />
+            <label for="revRoosterPrice">Đơn giá trống (VND/kg)</label>
+            <input id="revRoosterPrice" type="number" min="0" step="1000" placeholder="VD: 120000" />
           </div>
 
           <div>
-            <label for="henCount">Gà mái (con)</label>
-            <input id="henCount" type="number" min="0" step="1" value="0" />
+            <label for="revHenCount">Gà mái (con)</label>
+            <input id="revHenCount" type="number" min="0" step="1" value="0" />
           </div>
           <div>
-            <label for="henKg">Gà mái (kg)</label>
-            <input id="henKg" type="number" min="0" step="0.1" value="0" />
+            <label for="revHenKg">Gà mái (kg)</label>
+            <input id="revHenKg" type="number" min="0" step="0.1" value="0" />
           </div>
           <div>
-            <label for="henPrice">Đơn giá mái (VND/kg)</label>
-            <input id="henPrice" type="number" min="0" step="1000" placeholder="Ví dụ: 110000" />
+            <label for="revHenPrice">Đơn giá mái (VND/kg)</label>
+            <input id="revHenPrice" type="number" min="0" step="1000" placeholder="VD: 110000" />
+          </div>
+
+          <div>
+            <label for="revLabor">Tiền công làm</label>
+            <input id="revLabor" type="number" min="0" step="1000" placeholder="VD: 20000" />
+          </div>
+          <div>
+            <label for="revReceived">Tiền nhận được</label>
+            <input id="revReceived" type="number" min="0" step="1000" placeholder="Bỏ trống = lấy tổng tính" />
           </div>
 
           <div>
             <label>Tổng số gà</label>
-            <input id="totalCount" type="text" disabled value="0 con" />
+            <input id="revTotalCount" type="text" disabled value="0 con" />
           </div>
           <div>
             <label>Tổng kg</label>
-            <input id="totalKg" type="text" disabled value="0 kg" />
+            <input id="revTotalKg" type="text" disabled value="0 kg" />
           </div>
           <div>
-            <label>Thành tiền</label>
-            <input id="amount" type="text" disabled value="0 ₫" />
+            <label>Tổng tính</label>
+            <input id="revAmount" type="text" disabled value="0 ₫" />
           </div>
         </div>
 
         <div style="display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap">
           <div class="pill">Tính tiền: <b>(kg trống × giá trống) + (kg mái × giá mái)</b></div>
           <div class="btns">
-            <button class="ok" id="addBtn">+ Thêm dòng</button>
-            <button class="ghost" id="cancelEditBtn" style="display:none">Huỷ sửa</button>
-            <button id="exportBtn">Xuất CSV</button>
-            <button class="danger" id="clearBtn">Xoá tất cả</button>
+            <button class="ok" id="revAddBtn">+ Thêm dòng</button>
+            <button class="ghost" id="revCancelEditBtn" style="display:none">Huỷ sửa</button>
+            <button id="revExportBtn">Xuất CSV</button>
+            <button class="danger" id="revClearBtn">Xoá tất cả</button>
           </div>
         </div>
 
-        <div class="hint" id="editHint" style="display:none">
-          Bạn đang <b>sửa</b> một dòng. Nhấn <b>Cập nhật</b> để lưu, hoặc <b>Huỷ sửa</b>.
-        </div>
-
-        
+      
       </div>
 
       <div class="card">
         <div class="totalbar">
           <div>
-            <div class="muted">Tổng danh thu</div>
-            <div class="big" id="grandTotal">0 ₫</div>
+            <div class="muted">Tổng danh thu (theo Tiền nhận)</div>
+            <div class="big" id="revGrandReceived">0 ₫</div>
+          </div>
+          <div class="pill">
+            Tổng công: <b id="revGrandLabor">0 ₫</b> · Lãi tạm: <b id="revGrandNet">0 ₫</b>
           </div>
           <div class="pill">
             Tổng:
-            <b id="grandCount">0</b> con · <b id="grandKg">0</b> kg
-            (Trống <b id="grandRoosterCount">0</b> con/<b id="grandRoosterKg">0</b> kg ·
-             Mái <b id="grandHenCount">0</b> con/<b id="grandHenKg">0</b> kg)
+            <b id="revGrandCount">0</b> con · <b id="revGrandKg">0</b> kg
+            (Trống <b id="revGrandRoosterCount">0</b> con/<b id="revGrandRoosterKg">0</b> kg ·
+             Mái <b id="revGrandHenCount">0</b> con/<b id="revGrandHenKg">0</b> kg)
           </div>
         </div>
 
         <div style="height:12px"></div>
 
         <div class="table-wrap">
-          <table>
+          <table class="t-revenue">
             <thead>
               <tr>
                 <th>Ngày (DL)</th>
@@ -274,26 +289,34 @@
 
                 <th class="num">Tổng con</th>
                 <th class="num">Tổng kg</th>
-                <th class="num">Thành tiền</th>
+
+                <th class="num">Tổng tính</th>
+                <th class="num">Tiền công</th>
+                <th class="num">Tiền nhận</th>
+
                 <th>Thao tác</th>
               </tr>
             </thead>
-            <tbody id="tbody"></tbody>
+            <tbody id="revTbody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ====== NOTE ĐẶT HÀNG ====== -->
+      <!-- ======================= NOTE ĐẶT HÀNG (thêm lịch âm) ======================= -->
       <div class="card" id="orderCard">
         <div class="section-title">
           <h2>Note đặt hàng</h2>
-          <div class="muted">Lưu danh sách khách đặt / ghi chú giao hàng</div>
+        
         </div>
 
         <div class="order-grid">
           <div>
             <label for="orderDate">Ngày đặt</label>
             <input id="orderDate" type="datetime-local"/>
+          </div>
+          <div>
+            <label for="orderLunarDate">Lịch âm (VN)</label>
+            <input id="orderLunarDate" type="text" placeholder="Tự điền theo ngày đặt" />
           </div>
           <div>
             <label for="customer">Tên khách</label>
@@ -314,7 +337,7 @@
           </div>
 
           <div style="grid-column: 1 / -1;">
-            <label for="orderContent">Nội dung đặt (trống/mái, con/kg, giờ giao...)</label>
+            <label for="orderContent">Nội dung đặt</label>
             <textarea id="orderContent" placeholder="Ví dụ: Trống 2 con (3.2kg), Mái 1 con (1.6kg), giao 18:30"></textarea>
           </div>
 
@@ -337,16 +360,15 @@
         <div class="hint" id="orderEditHint" style="display:none">
           Bạn đang <b>sửa</b> một note. Nhấn <b>Cập nhật</b> để lưu, hoặc <b>Huỷ sửa</b>.
         </div>
-
-       
       </div>
 
       <div class="card">
         <div class="table-wrap">
-          <table style="min-width: 980px;">
+          <table class="t-orders">
             <thead>
               <tr>
                 <th>Ngày đặt</th>
+                <th>Lịch âm</th>
                 <th>Khách</th>
                 <th>SĐT</th>
                 <th>Nội dung đặt</th>
@@ -360,11 +382,122 @@
         </div>
       </div>
 
+      <!-- ======================= THIỆT HẠI (mới) ======================= -->
+      <div class="card" id="damageCard">
+        <div class="section-title">
+          <h2>Bảng thiệt hại</h2>
+          <div class="muted">Sửa/xoá, tổng thiệt hại + tổng kg + tổng số lượng</div>
+        </div>
+
+        <div class="damage-row">
+          <div>
+            <label for="damDate">Ngày</label>
+            <input id="damDate" type="date" />
+          </div>
+
+          <div>
+            <label for="damRoosterCount">Gà trống (con)</label>
+            <input id="damRoosterCount" type="number" min="0" step="1" value="0" />
+          </div>
+          <div>
+            <label for="damRoosterKg">Trống (kg)</label>
+            <input id="damRoosterKg" type="number" min="0" step="0.1" value="0" />
+          </div>
+          <div>
+            <label for="damRoosterPrice">Đơn giá trống (VND/kg)</label>
+            <input id="damRoosterPrice" type="number" min="0" step="1000" placeholder="VD: 120000" />
+          </div>
+
+          <div>
+            <label for="damHenCount">Gà mái (con)</label>
+            <input id="damHenCount" type="number" min="0" step="1" value="0" />
+          </div>
+          <div>
+            <label for="damHenKg">Mái (kg)</label>
+            <input id="damHenKg" type="number" min="0" step="0.1" value="0" />
+          </div>
+          <div>
+            <label for="damHenPrice">Đơn giá mái (VND/kg)</label>
+            <input id="damHenPrice" type="number" min="0" step="1000" placeholder="VD: 110000" />
+          </div>
+
+          <div>
+            <label>Tổng số lượng</label>
+            <input id="damTotalCount" type="text" disabled value="0 con" />
+          </div>
+          <div>
+            <label>Tổng kg</label>
+            <input id="damTotalKg" type="text" disabled value="0 kg" />
+          </div>
+          <div>
+            <label>Tổng tiền</label>
+            <input id="damAmount" type="text" disabled value="0 ₫" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap">
+          <div class="pill">Công thức: <b>(kg trống × giá) + (kg mái × giá)</b></div>
+          <div class="btns">
+            <button class="ok" id="damAddBtn">+ Thêm dòng</button>
+            <button class="ghost" id="damCancelEditBtn" style="display:none">Huỷ sửa</button>
+            <button id="damExportBtn">Xuất CSV</button>
+            <button class="danger" id="damClearBtn">Xoá tất cả</button>
+          </div>
+        </div>
+
+        <div class="hint" id="damEditHint" style="display:none">
+          Bạn đang <b>sửa</b> một dòng thiệt hại. Nhấn <b>Cập nhật</b> để lưu, hoặc <b>Huỷ sửa</b>.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="totalbar">
+          <div>
+            <div class="muted">Tổng thiệt hại</div>
+            <div class="big" id="damGrandTotal">0 ₫</div>
+          </div>
+          <div class="pill">
+            Tổng kg: <b id="damGrandKg">0</b>
+            (Trống <b id="damGrandRoosterKg">0</b> · Mái <b id="damGrandHenKg">0</b>)
+          </div>
+          <div class="pill">
+            Tổng số lượng gà: <b id="damGrandCount">0</b>
+            (Trống <b id="damGrandRoosterCount">0</b> · Mái <b id="damGrandHenCount">0</b>)
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="table-wrap">
+          <table class="t-damage">
+            <thead>
+              <tr>
+                <th>Ngày</th>
+
+                <th class="num">Trống (con)</th>
+                <th class="num">Trống (kg)</th>
+                <th class="num">Giá trống</th>
+
+                <th class="num">Mái (con)</th>
+                <th class="num">Mái (kg)</th>
+                <th class="num">Giá mái</th>
+
+                <th class="num">Tổng con</th>
+                <th class="num">Tổng kg</th>
+                <th class="num">Tổng tiền</th>
+
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="damTbody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // ===== Helpers =====
+    // =================== Helpers ===================
     const VND = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
     const NF  = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 });
     const fmtMoney = (n) => VND.format(Number.isFinite(n) ? n : 0);
@@ -386,28 +519,20 @@
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
     }[m]));
+    const scrollToEl = (el) => { try { el.scrollIntoView({ behavior:"smooth", block:"start" }); } catch {} };
 
-    const scrollToEl = (el) => {
-      try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch {}
-    };
-
-    // ===== Vietnamese Lunar Calendar (solar -> lunar) =====
-    // Dựa theo thuật toán phổ biến (độ chính xác thực tế tốt), timezone VN = 7
+    // =================== Vietnamese Lunar Calendar (solar -> lunar) ===================
+    // (Thuật toán phổ biến; timezone VN=7)
     const PI = Math.PI;
-
     function INT(d){ return Math.floor(d); }
-
     function jdFromDate(dd, mm, yy) {
       const a = INT((14 - mm) / 12);
       const y = yy + 4800 - a;
       const m = mm + 12 * a - 3;
       let jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - INT(y / 100) + INT(y / 400) - 32045;
-      if (jd < 2299161) {
-        jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - 32083;
-      }
+      if (jd < 2299161) jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - 32083;
       return jd;
     }
-
     function NewMoon(k) {
       const T = k / 1236.85;
       const T2 = T * T;
@@ -426,14 +551,10 @@
       C1 -= 0.0004 * Math.sin(dr * (2 * F - M)) - 0.0006 * Math.sin(dr * (2 * F + Mpr));
       C1 += 0.0010 * Math.sin(dr * (2 * F - Mpr)) + 0.0005 * Math.sin(dr * (2 * Mpr + M));
       let deltat;
-      if (T < -11) {
-        deltat = 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3;
-      } else {
-        deltat = -0.000278 + 0.000265 * T + 0.000262 * T2;
-      }
+      if (T < -11) deltat = 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3;
+      else deltat = -0.000278 + 0.000265 * T + 0.000262 * T2;
       return Jd1 + C1 - deltat;
     }
-
     function SunLongitude(jdn) {
       const T = (jdn - 2451545.0) / 36525;
       const T2 = T * T;
@@ -447,30 +568,23 @@
       L = L - PI * 2 * INT(L / (PI * 2));
       return L;
     }
-
     function getSunLongitude(dayNumber, timeZone) {
       return INT(SunLongitude(dayNumber - 0.5 - timeZone / 24) / PI * 6);
     }
-
     function getNewMoonDay(k, timeZone) {
       return INT(NewMoon(k) + 0.5 + timeZone / 24);
     }
-
     function getLunarMonth11(yy, timeZone) {
       const off = jdFromDate(31, 12, yy) - 2415021;
       const k = INT(off / 29.530588853);
       let nm = getNewMoonDay(k, timeZone);
       const sunLong = getSunLongitude(nm, timeZone);
-      if (sunLong >= 9) {
-        nm = getNewMoonDay(k - 1, timeZone);
-      }
+      if (sunLong >= 9) nm = getNewMoonDay(k - 1, timeZone);
       return nm;
     }
-
     function getLeapMonthOffset(a11, timeZone) {
       const k = INT(0.5 + (a11 - 2415021.076998695) / 29.530588853);
-      let last = 0;
-      let i = 1;
+      let last = 0, i = 1;
       let arc = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
       do {
         last = arc;
@@ -479,7 +593,6 @@
       } while (arc !== last && i < 14);
       return i - 1;
     }
-
     function convertSolar2Lunar(dd, mm, yy, timeZone) {
       const dayNumber = jdFromDate(dd, mm, yy);
       const k = INT((dayNumber - 2415021.076998695) / 29.530588853);
@@ -516,7 +629,6 @@
 
       return [lunarDay, lunarMonth, lunarYear, lunarLeap];
     }
-
     function fmtLunarFromISODate(isoDateStr){
       if(!isoDateStr) return "";
       const [y, m, d] = isoDateStr.split("-").map(Number);
@@ -526,52 +638,61 @@
       const mm = String(lm).padStart(2,"0");
       return `${dd}/${mm}/${ly}${leap ? " (Nhuận)" : ""}`;
     }
+    function fmtLunarFromDateTimeLocal(dtLocal){
+      if(!dtLocal) return "";
+      const isoDate = dtLocal.split("T")[0];
+      return fmtLunarFromISODate(isoDate);
+    }
 
-    // ===== State =====
-    const LS_REVENUE = "ga_doanh_thu_con_kg_v3_lunar";
-    const LS_ORDERS  = "ga_orders_v2";
-    let rows = [];
-    let orders = [];
-    let editingRevenueIndex = null;
-    let editingOrderIndex = null;
+    // =================== LocalStorage keys ===================
+    const LS_REVENUE = "ga_revenue_v4_received_labor";
+    const LS_ORDERS  = "ga_orders_v3_lunar";
+    const LS_DAMAGE  = "ga_damage_v1";
 
-    // ===== DOM (Doanh thu) =====
+    // =================== Revenue DOM ===================
     const $revenueCard = document.getElementById("revenueCard");
-    const $date = document.getElementById("date");
-    const $customerName = document.getElementById("customerName");
-    const $lunarDate = document.getElementById("lunarDate");
+    const $revDate = document.getElementById("revDate");
+    const $revCustomerName = document.getElementById("revCustomerName");
+    const $revLunarDate = document.getElementById("revLunarDate");
 
-    const $roosterCount = document.getElementById("roosterCount");
-    const $roosterKg = document.getElementById("roosterKg");
-    const $roosterPrice = document.getElementById("roosterPrice");
+    const $revRoosterCount = document.getElementById("revRoosterCount");
+    const $revRoosterKg = document.getElementById("revRoosterKg");
+    const $revRoosterPrice = document.getElementById("revRoosterPrice");
 
-    const $henCount = document.getElementById("henCount");
-    const $henKg = document.getElementById("henKg");
-    const $henPrice = document.getElementById("henPrice");
+    const $revHenCount = document.getElementById("revHenCount");
+    const $revHenKg = document.getElementById("revHenKg");
+    const $revHenPrice = document.getElementById("revHenPrice");
 
-    const $totalCount = document.getElementById("totalCount");
-    const $totalKg = document.getElementById("totalKg");
-    const $amount = document.getElementById("amount");
-    const $tbody = document.getElementById("tbody");
+    const $revLabor = document.getElementById("revLabor");
+    const $revReceived = document.getElementById("revReceived");
 
-    const $grandTotal = document.getElementById("grandTotal");
-    const $grandCount = document.getElementById("grandCount");
-    const $grandKg = document.getElementById("grandKg");
-    const $grandRoosterCount = document.getElementById("grandRoosterCount");
-    const $grandRoosterKg = document.getElementById("grandRoosterKg");
-    const $grandHenCount = document.getElementById("grandHenCount");
-    const $grandHenKg = document.getElementById("grandHenKg");
+    const $revTotalCount = document.getElementById("revTotalCount");
+    const $revTotalKg = document.getElementById("revTotalKg");
+    const $revAmount = document.getElementById("revAmount");
 
-    const $addBtn = document.getElementById("addBtn");
-    const $cancelEditBtn = document.getElementById("cancelEditBtn");
-    const $editHint = document.getElementById("editHint");
+    const $revTbody = document.getElementById("revTbody");
 
-    const $clearBtn = document.getElementById("clearBtn");
-    const $exportBtn = document.getElementById("exportBtn");
+    const $revGrandReceived = document.getElementById("revGrandReceived");
+    const $revGrandLabor = document.getElementById("revGrandLabor");
+    const $revGrandNet = document.getElementById("revGrandNet");
 
-    // ===== DOM (Orders) =====
+    const $revGrandCount = document.getElementById("revGrandCount");
+    const $revGrandKg = document.getElementById("revGrandKg");
+    const $revGrandRoosterCount = document.getElementById("revGrandRoosterCount");
+    const $revGrandHenCount = document.getElementById("revGrandHenCount");
+    const $revGrandRoosterKg = document.getElementById("revGrandRoosterKg");
+    const $revGrandHenKg = document.getElementById("revGrandHenKg");
+
+    const $revAddBtn = document.getElementById("revAddBtn");
+    const $revCancelEditBtn = document.getElementById("revCancelEditBtn");
+    const $revEditHint = document.getElementById("revEditHint");
+    const $revClearBtn = document.getElementById("revClearBtn");
+    const $revExportBtn = document.getElementById("revExportBtn");
+
+    // =================== Orders DOM ===================
     const $orderCard = document.getElementById("orderCard");
     const $orderDate = document.getElementById("orderDate");
+    const $orderLunarDate = document.getElementById("orderLunarDate");
     const $customer = document.getElementById("customer");
     const $phone = document.getElementById("phone");
     const $status = document.getElementById("status");
@@ -583,78 +704,155 @@
     const $addOrderBtn = document.getElementById("addOrderBtn");
     const $cancelOrderEditBtn = document.getElementById("cancelOrderEditBtn");
     const $orderEditHint = document.getElementById("orderEditHint");
-
     const $clearOrderBtn = document.getElementById("clearOrderBtn");
     const $exportOrderBtn = document.getElementById("exportOrderBtn");
 
-    // ===== Init date inputs =====
+    // =================== Damage DOM ===================
+    const $damageCard = document.getElementById("damageCard");
+    const $damDate = document.getElementById("damDate");
+
+    const $damRoosterCount = document.getElementById("damRoosterCount");
+    const $damRoosterKg = document.getElementById("damRoosterKg");
+    const $damRoosterPrice = document.getElementById("damRoosterPrice");
+
+    const $damHenCount = document.getElementById("damHenCount");
+    const $damHenKg = document.getElementById("damHenKg");
+    const $damHenPrice = document.getElementById("damHenPrice");
+
+    const $damTotalCount = document.getElementById("damTotalCount");
+    const $damTotalKg = document.getElementById("damTotalKg");
+    const $damAmount = document.getElementById("damAmount");
+
+    const $damTbody = document.getElementById("damTbody");
+
+    const $damGrandTotal = document.getElementById("damGrandTotal");
+    const $damGrandKg = document.getElementById("damGrandKg");
+    const $damGrandRoosterKg = document.getElementById("damGrandRoosterKg");
+    const $damGrandHenKg = document.getElementById("damGrandHenKg");
+    const $damGrandCount = document.getElementById("damGrandCount");
+    const $damGrandRoosterCount = document.getElementById("damGrandRoosterCount");
+    const $damGrandHenCount = document.getElementById("damGrandHenCount");
+
+    const $damAddBtn = document.getElementById("damAddBtn");
+    const $damCancelEditBtn = document.getElementById("damCancelEditBtn");
+    const $damEditHint = document.getElementById("damEditHint");
+    const $damClearBtn = document.getElementById("damClearBtn");
+    const $damExportBtn = document.getElementById("damExportBtn");
+
+    // =================== Init dates ===================
     (function initDates(){
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth()+1).padStart(2,"0");
       const dd = String(today.getDate()).padStart(2,"0");
-      $date.value = `${yyyy}-${mm}-${dd}`;
-
       const hh = String(today.getHours()).padStart(2,"0");
       const mi = String(today.getMinutes()).padStart(2,"0");
+
+      $revDate.value = `${yyyy}-${mm}-${dd}`;
+      $damDate.value = `${yyyy}-${mm}-${dd}`;
       $orderDate.value = `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
     })();
 
-    // ===== Auto fill lunar date when date changes (but don't overwrite if user edited manually) =====
-    let lastAutoLunar = "";
-    function syncLunarFromDate(){
-      const auto = fmtLunarFromISODate($date.value);
-      if(!$lunarDate.value || $lunarDate.value === lastAutoLunar){
-        $lunarDate.value = auto;
+    // =================== Auto lunar sync (Revenue) ===================
+    let revLastAutoLunar = "";
+    function revSyncLunar(){
+      const auto = fmtLunarFromISODate($revDate.value);
+      if(!$revLunarDate.value || $revLunarDate.value === revLastAutoLunar){
+        $revLunarDate.value = auto;
       }
-      lastAutoLunar = auto;
+      revLastAutoLunar = auto;
     }
-    $date.addEventListener("change", syncLunarFromDate);
-    syncLunarFromDate();
+    $revDate.addEventListener("change", revSyncLunar);
+    revSyncLunar();
 
-    // ===== Live calc =====
-    function calcPreview(){
-      const rC = toInt($roosterCount.value);
-      const hC = toInt($henCount.value);
+    // =================== Auto lunar sync (Orders) ===================
+    let orderLastAutoLunar = "";
+    function orderSyncLunar(){
+      const auto = fmtLunarFromDateTimeLocal($orderDate.value);
+      if(!$orderLunarDate.value || $orderLunarDate.value === orderLastAutoLunar){
+        $orderLunarDate.value = auto;
+      }
+      orderLastAutoLunar = auto;
+    }
+    $orderDate.addEventListener("change", orderSyncLunar);
+    orderSyncLunar();
 
-      const rKg = toKg($roosterKg.value);
-      const hKg = toKg($henKg.value);
-
-      const rP = toNum($roosterPrice.value);
-      const hP = toNum($henPrice.value);
+    // =================== Revenue calc preview ===================
+    function revCalcComputedAmount(){
+      const rKg = toKg($revRoosterKg.value);
+      const hKg = toKg($revHenKg.value);
+      const rP = toNum($revRoosterPrice.value);
+      const hP = toNum($revHenPrice.value);
+      return (rKg * rP) + (hKg * hP);
+    }
+    function revCalcPreview(){
+      const rC = toInt($revRoosterCount.value);
+      const hC = toInt($revHenCount.value);
+      const rKg = toKg($revRoosterKg.value);
+      const hKg = toKg($revHenKg.value);
 
       const totalCount = rC + hC;
       const totalKg = rKg + hKg;
-      const amount = (rKg * rP) + (hKg * hP);
+      const computed = revCalcComputedAmount();
 
-      $totalCount.value = fmtCon(totalCount);
-      $totalKg.value = fmtKg(totalKg);
-      $amount.value = fmtMoney(amount);
+      $revTotalCount.value = fmtCon(totalCount);
+      $revTotalKg.value = fmtKg(totalKg);
+      $revAmount.value = fmtMoney(computed);
     }
-    [$roosterCount,$henCount,$roosterKg,$henKg,$roosterPrice,$henPrice].forEach(el => el.addEventListener("input", calcPreview));
-    calcPreview();
+    [$revRoosterCount,$revHenCount,$revRoosterKg,$revHenKg,$revRoosterPrice,$revHenPrice].forEach(el => el.addEventListener("input", revCalcPreview));
+    revCalcPreview();
 
-    // ===== Persistence =====
-    function saveRevenue(){ localStorage.setItem(LS_REVENUE, JSON.stringify(rows)); }
+    // =================== Damage calc preview ===================
+    function damCalcComputedAmount(){
+      const rKg = toKg($damRoosterKg.value);
+      const hKg = toKg($damHenKg.value);
+      const rP = toNum($damRoosterPrice.value);
+      const hP = toNum($damHenPrice.value);
+      return (rKg * rP) + (hKg * hP);
+    }
+    function damCalcPreview(){
+      const rC = toInt($damRoosterCount.value);
+      const hC = toInt($damHenCount.value);
+      const rKg = toKg($damRoosterKg.value);
+      const hKg = toKg($damHenKg.value);
+
+      $damTotalCount.value = fmtCon(rC + hC);
+      $damTotalKg.value = fmtKg(rKg + hKg);
+      $damAmount.value = fmtMoney(damCalcComputedAmount());
+    }
+    [$damRoosterCount,$damHenCount,$damRoosterKg,$damHenKg,$damRoosterPrice,$damHenPrice].forEach(el => el.addEventListener("input", damCalcPreview));
+    damCalcPreview();
+
+    // =================== State ===================
+    let revenueRows = [];
+    let orders = [];
+    let damageRows = [];
+
+    let revEditingIndex = null;
+    let orderEditingIndex = null;
+    let damEditingIndex = null;
+
+    // =================== Persistence load/save ===================
+    function saveRevenue(){ localStorage.setItem(LS_REVENUE, JSON.stringify(revenueRows)); }
     function loadRevenue(){
       try{
         const raw = localStorage.getItem(LS_REVENUE);
-        rows = raw ? JSON.parse(raw) : [];
-        if(!Array.isArray(rows)) rows = [];
-      }catch{ rows = []; }
+        revenueRows = raw ? JSON.parse(raw) : [];
+        if(!Array.isArray(revenueRows)) revenueRows = [];
+      }catch{ revenueRows = []; }
 
-      rows = rows.map(r => ({
+      revenueRows = revenueRows.map(r => ({
         date: r?.date ?? "",
         lunarDate: r?.lunarDate ?? "",
         customerName: r?.customerName ?? "",
-
         roosterCount: toInt(r?.roosterCount),
         roosterKg: toKg(r?.roosterKg),
         roosterPrice: toNum(r?.roosterPrice),
-
         henCount: toInt(r?.henCount),
         henKg: toKg(r?.henKg),
         henPrice: toNum(r?.henPrice),
+        labor: toNum(r?.labor),
+        received: (r?.received === null || r?.received === undefined) ? null : toNum(r?.received),
       }));
     }
 
@@ -665,69 +863,115 @@
         orders = raw ? JSON.parse(raw) : [];
         if(!Array.isArray(orders)) orders = [];
       }catch{ orders = []; }
+
+      orders = orders.map(o => ({
+        orderDate: o?.orderDate ?? "",
+        lunarDate: o?.lunarDate ?? (o?.orderDate ? fmtLunarFromDateTimeLocal(o.orderDate) : ""),
+        customer: o?.customer ?? "",
+        phone: o?.phone ?? "",
+        status: o?.status ?? "Mới",
+        content: o?.content ?? "",
+        note: o?.note ?? "",
+      }));
     }
 
-    // ===== Form reset / edit state =====
-    function setRevenueEditing(on){
-      $cancelEditBtn.style.display = on ? "" : "none";
-      $editHint.style.display = on ? "" : "none";
-      $addBtn.textContent = on ? "Cập nhật" : "+ Thêm dòng";
-    }
-    function resetRevenueForm(keepDate=true){
-      if(!keepDate){
-        // $date.value = "";
-      }
-      $customerName.value = "";
-      // lịch âm sẽ sync theo ngày dương (nếu user muốn giữ thì cứ giữ)
-      syncLunarFromDate();
+    function saveDamage(){ localStorage.setItem(LS_DAMAGE, JSON.stringify(damageRows)); }
+    function loadDamage(){
+      try{
+        const raw = localStorage.getItem(LS_DAMAGE);
+        damageRows = raw ? JSON.parse(raw) : [];
+        if(!Array.isArray(damageRows)) damageRows = [];
+      }catch{ damageRows = []; }
 
-      $roosterCount.value = 0;
-      $henCount.value = 0;
-      $roosterKg.value = 0;
-      $henKg.value = 0;
-      $roosterPrice.value = "";
-      $henPrice.value = "";
-      calcPreview();
+      damageRows = damageRows.map(d => ({
+        date: d?.date ?? "",
+        roosterCount: toInt(d?.roosterCount),
+        roosterKg: toKg(d?.roosterKg),
+        roosterPrice: toNum(d?.roosterPrice),
+        henCount: toInt(d?.henCount),
+        henKg: toKg(d?.henKg),
+        henPrice: toNum(d?.henPrice),
+      }));
     }
 
+    // =================== UI state helpers ===================
+    function setRevEditing(on){
+      $revCancelEditBtn.style.display = on ? "" : "none";
+      $revEditHint.style.display = on ? "" : "none";
+      $revAddBtn.textContent = on ? "Cập nhật" : "+ Thêm dòng";
+    }
     function setOrderEditing(on){
       $cancelOrderEditBtn.style.display = on ? "" : "none";
       $orderEditHint.style.display = on ? "" : "none";
       $addOrderBtn.textContent = on ? "Cập nhật" : "+ Thêm note";
     }
-    function resetOrderForm(keepDate=true){
-      if(!keepDate){
-        // $orderDate.value = "";
-      }
+    function setDamEditing(on){
+      $damCancelEditBtn.style.display = on ? "" : "none";
+      $damEditHint.style.display = on ? "" : "none";
+      $damAddBtn.textContent = on ? "Cập nhật" : "+ Thêm dòng";
+    }
+
+    function resetRevForm(){
+      $revCustomerName.value = "";
+      // lunar auto sync from date
+      revSyncLunar();
+
+      $revRoosterCount.value = 0;
+      $revRoosterKg.value = 0;
+      $revRoosterPrice.value = "";
+
+      $revHenCount.value = 0;
+      $revHenKg.value = 0;
+      $revHenPrice.value = "";
+
+      $revLabor.value = "";
+      $revReceived.value = "";
+
+      revCalcPreview();
+    }
+    function resetOrderForm(){
+      // giữ ngày đặt
+      orderSyncLunar();
       $customer.value = "";
       $phone.value = "";
       $status.value = "Mới";
       $orderContent.value = "";
       $orderNote.value = "";
     }
+    function resetDamForm(){
+      $damRoosterCount.value = 0;
+      $damRoosterKg.value = 0;
+      $damRoosterPrice.value = "";
 
-    // ===== Validate revenue input =====
-    function getRevenueFormDataOrAlert(){
-      const date = $date.value;
-      const customerName = $customerName.value.trim();
-      const lunarDate = $lunarDate.value.trim();
+      $damHenCount.value = 0;
+      $damHenKg.value = 0;
+      $damHenPrice.value = "";
 
-      const roosterCount = toInt($roosterCount.value);
-      const henCount = toInt($henCount.value);
+      damCalcPreview();
+    }
 
-      const roosterKg = toKg($roosterKg.value);
-      const henKg = toKg($henKg.value);
+    // =================== Revenue validation/data ===================
+    function getRevenueDataOrAlert(){
+      const date = $revDate.value;
+      const customerName = $revCustomerName.value.trim();
+      const lunarRaw = $revLunarDate.value.trim();
+      const lunarDate = lunarRaw || fmtLunarFromISODate(date);
 
-      const roosterPrice = toNum($roosterPrice.value);
-      const henPrice = toNum($henPrice.value);
+      const roosterCount = toInt($revRoosterCount.value);
+      const henCount = toInt($revHenCount.value);
 
-      if(!date){
-        alert("Vui lòng chọn ngày (dương lịch).");
-        return null;
-      }
+      const roosterKg = toKg($revRoosterKg.value);
+      const henKg = toKg($revHenKg.value);
 
-      // nếu lunar trống thì tự fill
-      const lunarFinal = lunarDate || fmtLunarFromISODate(date);
+      const roosterPrice = toNum($revRoosterPrice.value);
+      const henPrice = toNum($revHenPrice.value);
+
+      const labor = toNum($revLabor.value);
+
+      const receivedRaw = String($revReceived.value ?? "").trim();
+      const received = receivedRaw === "" ? null : toNum(receivedRaw);
+
+      if(!date){ alert("Vui lòng chọn ngày (dương lịch)."); return null; }
 
       if(roosterKg + henKg <= 0){
         alert("Tổng kg phải > 0 (vì tính tiền theo kg).");
@@ -743,42 +987,95 @@
       }
 
       return {
-        date,
-        lunarDate: lunarFinal,
-        customerName,
-
+        date, lunarDate, customerName,
         roosterCount, roosterKg, roosterPrice,
-        henCount, henKg, henPrice
+        henCount, henKg, henPrice,
+        labor,
+        received
       };
     }
 
-    // ===== Render Revenue =====
+    // =================== Orders validation/data ===================
+    function getOrderDataOrAlert(){
+      const orderDate = $orderDate.value;
+      const lunarRaw = $orderLunarDate.value.trim();
+      const lunarDate = lunarRaw || fmtLunarFromDateTimeLocal(orderDate);
+
+      const customer = $customer.value.trim();
+      const phone = $phone.value.trim();
+      const status = $status.value;
+      const content = $orderContent.value.trim();
+      const note = $orderNote.value.trim();
+
+      if(!orderDate){ alert("Vui lòng chọn ngày đặt."); return null; }
+      if(!customer && !phone){ alert("Nhập ít nhất Tên khách hoặc SĐT."); return null; }
+      if(!content){ alert("Vui lòng nhập Nội dung đặt."); return null; }
+
+      return { orderDate, lunarDate, customer, phone, status, content, note };
+    }
+
+    // =================== Damage validation/data ===================
+    function getDamageDataOrAlert(){
+      const date = $damDate.value;
+
+      const roosterCount = toInt($damRoosterCount.value);
+      const henCount = toInt($damHenCount.value);
+
+      const roosterKg = toKg($damRoosterKg.value);
+      const henKg = toKg($damHenKg.value);
+
+      const roosterPrice = toNum($damRoosterPrice.value);
+      const henPrice = toNum($damHenPrice.value);
+
+      if(!date){ alert("Vui lòng chọn ngày."); return null; }
+
+      if(roosterKg + henKg <= 0){
+        alert("Tổng kg phải > 0 (thiệt hại tính theo kg).");
+        return null;
+      }
+      if(roosterKg > 0 && roosterPrice <= 0){
+        alert("Bạn nhập kg trống > 0 thì đơn giá trống phải > 0.");
+        return null;
+      }
+      if(henKg > 0 && henPrice <= 0){
+        alert("Bạn nhập kg mái > 0 thì đơn giá mái phải > 0.");
+        return null;
+      }
+
+      return { date, roosterCount, roosterKg, roosterPrice, henCount, henKg, henPrice };
+    }
+
+    // =================== Render Revenue ===================
     function renderRevenue(){
-      $tbody.innerHTML = "";
+      $revTbody.innerHTML = "";
 
-      let totalMoney = 0;
-      let totalCount = 0;
-      let totalKg = 0;
+      let sumComputed = 0;
+      let sumReceived = 0;
+      let sumLabor = 0;
 
-      let totalRC = 0, totalHC = 0;
-      let totalRK = 0, totalHK = 0;
+      let sumCount = 0;
+      let sumKg = 0;
+      let sumRC = 0, sumHC = 0;
+      let sumRK = 0, sumHK = 0;
 
-      rows.forEach((row, idx) => {
-        const tr = document.createElement("tr");
-
+      revenueRows.forEach((row, idx) => {
         const cSum = row.roosterCount + row.henCount;
         const kSum = row.roosterKg + row.henKg;
-        const amount = (row.roosterKg * row.roosterPrice) + (row.henKg * row.henPrice);
+        const computed = (row.roosterKg * row.roosterPrice) + (row.henKg * row.henPrice);
+        const received = (row.received === null ? computed : row.received);
 
-        totalMoney += amount;
-        totalCount += cSum;
-        totalKg += kSum;
+        sumComputed += computed;
+        sumReceived += received;
+        sumLabor += row.labor;
 
-        totalRC += row.roosterCount;
-        totalHC += row.henCount;
-        totalRK += row.roosterKg;
-        totalHK += row.henKg;
+        sumCount += cSum;
+        sumKg += kSum;
+        sumRC += row.roosterCount;
+        sumHC += row.henCount;
+        sumRK += row.roosterKg;
+        sumHK += row.henKg;
 
+        const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${esc(row.date)}</td>
           <td>${esc(row.lunarDate || "")}</td>
@@ -794,27 +1091,32 @@
 
           <td class="num"><b>${cSum}</b></td>
           <td class="num"><b>${NF.format(kSum)}</b></td>
-          <td class="num"><b>${fmtMoney(amount)}</b></td>
+
+          <td class="num"><b>${fmtMoney(computed)}</b></td>
+          <td class="num">${fmtMoney(row.labor)}</td>
+          <td class="num"><b>${fmtMoney(received)}</b></td>
 
           <td>
-            <button class="btn-mini ok" data-edit="${idx}">Sửa</button>
-            <button class="btn-mini danger" data-del="${idx}">Xoá</button>
+            <button class="btn-mini ok" data-rev-edit="${idx}">Sửa</button>
+            <button class="btn-mini danger" data-rev-del="${idx}">Xoá</button>
           </td>
         `;
-        $tbody.appendChild(tr);
+        $revTbody.appendChild(tr);
       });
 
-      $grandTotal.textContent = fmtMoney(totalMoney);
-      $grandCount.textContent = totalCount;
-      $grandKg.textContent = NF.format(totalKg);
+      $revGrandReceived.textContent = fmtMoney(sumReceived);
+      $revGrandLabor.textContent = fmtMoney(sumLabor);
+      $revGrandNet.textContent = fmtMoney(sumReceived - sumLabor);
 
-      $grandRoosterCount.textContent = totalRC;
-      $grandHenCount.textContent = totalHC;
-      $grandRoosterKg.textContent = NF.format(totalRK);
-      $grandHenKg.textContent = NF.format(totalHK);
+      $revGrandCount.textContent = sumCount;
+      $revGrandKg.textContent = NF.format(sumKg);
+      $revGrandRoosterCount.textContent = sumRC;
+      $revGrandHenCount.textContent = sumHC;
+      $revGrandRoosterKg.textContent = NF.format(sumRK);
+      $revGrandHenKg.textContent = NF.format(sumHK);
     }
 
-    // ===== Render Orders =====
+    // =================== Render Orders ===================
     function renderOrders(){
       $orderTbody.innerHTML = "";
       $orderCount.textContent = orders.length;
@@ -823,6 +1125,7 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${esc(o.orderDate || "")}</td>
+          <td>${esc(o.lunarDate || "")}</td>
           <td>${esc(o.customer || "")}</td>
           <td>${esc(o.phone || "")}</td>
           <td>${esc(o.content || "")}</td>
@@ -837,181 +1140,207 @@
       });
     }
 
-    // ===== Revenue add/update/cancel =====
-    $addBtn.addEventListener("click", () => {
-      const data = getRevenueFormDataOrAlert();
+    // =================== Render Damage ===================
+    function renderDamage(){
+      $damTbody.innerHTML = "";
+
+      let sumMoney = 0;
+      let sumKg = 0;
+      let sumRK = 0, sumHK = 0;
+      let sumCount = 0;
+      let sumRC = 0, sumHC = 0;
+
+      damageRows.forEach((d, idx) => {
+        const cSum = d.roosterCount + d.henCount;
+        const kSum = d.roosterKg + d.henKg;
+        const money = (d.roosterKg * d.roosterPrice) + (d.henKg * d.henPrice);
+
+        sumMoney += money;
+        sumKg += kSum;
+        sumRK += d.roosterKg;
+        sumHK += d.henKg;
+        sumCount += cSum;
+        sumRC += d.roosterCount;
+        sumHC += d.henCount;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${esc(d.date)}</td>
+
+          <td class="num">${d.roosterCount}</td>
+          <td class="num">${NF.format(d.roosterKg)}</td>
+          <td class="num">${fmtMoney(d.roosterPrice)}</td>
+
+          <td class="num">${d.henCount}</td>
+          <td class="num">${NF.format(d.henKg)}</td>
+          <td class="num">${fmtMoney(d.henPrice)}</td>
+
+          <td class="num"><b>${cSum}</b></td>
+          <td class="num"><b>${NF.format(kSum)}</b></td>
+          <td class="num"><b>${fmtMoney(money)}</b></td>
+
+          <td>
+            <button class="btn-mini ok" data-dedit="${idx}">Sửa</button>
+            <button class="btn-mini danger" data-ddel="${idx}">Xoá</button>
+          </td>
+        `;
+        $damTbody.appendChild(tr);
+      });
+
+      $damGrandTotal.textContent = fmtMoney(sumMoney);
+      $damGrandKg.textContent = NF.format(sumKg);
+      $damGrandRoosterKg.textContent = NF.format(sumRK);
+      $damGrandHenKg.textContent = NF.format(sumHK);
+
+      $damGrandCount.textContent = sumCount;
+      $damGrandRoosterCount.textContent = sumRC;
+      $damGrandHenCount.textContent = sumHC;
+    }
+
+    // =================== Revenue actions ===================
+    $revAddBtn.addEventListener("click", () => {
+      const data = getRevenueDataOrAlert();
       if(!data) return;
 
-      if(editingRevenueIndex === null){
-        rows.unshift(data);
-      }else{
-        rows[editingRevenueIndex] = data;
-      }
+      if(revEditingIndex === null) revenueRows.unshift(data);
+      else revenueRows[revEditingIndex] = data;
 
       saveRevenue();
       renderRevenue();
 
-      editingRevenueIndex = null;
-      setRevenueEditing(false);
-      resetRevenueForm(true);
-      $customerName.focus();
+      revEditingIndex = null;
+      setRevEditing(false);
+      resetRevForm();
+      $revCustomerName.focus();
     });
 
-    $cancelEditBtn.addEventListener("click", () => {
-      editingRevenueIndex = null;
-      setRevenueEditing(false);
-      resetRevenueForm(true);
+    $revCancelEditBtn.addEventListener("click", () => {
+      revEditingIndex = null;
+      setRevEditing(false);
+      resetRevForm();
     });
 
-    // Revenue table actions
-    $tbody.addEventListener("click", (e) => {
-      const delBtn = e.target.closest("button[data-del]");
-      const editBtn = e.target.closest("button[data-edit]");
+    $revTbody.addEventListener("click", (e) => {
+      const delBtn = e.target.closest("button[data-rev-del]");
+      const editBtn = e.target.closest("button[data-rev-edit]");
 
       if(delBtn){
-        const idx = Number(delBtn.getAttribute("data-del"));
+        const idx = Number(delBtn.getAttribute("data-rev-del"));
         if(!Number.isFinite(idx)) return;
 
-        if(editingRevenueIndex === idx){
-          editingRevenueIndex = null;
-          setRevenueEditing(false);
-          resetRevenueForm(true);
+        if(revEditingIndex === idx){
+          revEditingIndex = null;
+          setRevEditing(false);
+          resetRevForm();
         }
-
-        rows.splice(idx, 1);
+        revenueRows.splice(idx, 1);
         saveRevenue();
         renderRevenue();
         return;
       }
 
       if(editBtn){
-        const idx = Number(editBtn.getAttribute("data-edit"));
+        const idx = Number(editBtn.getAttribute("data-rev-edit"));
         if(!Number.isFinite(idx)) return;
-        const r = rows[idx];
+        const r = revenueRows[idx];
         if(!r) return;
 
-        editingRevenueIndex = idx;
-        setRevenueEditing(true);
+        revEditingIndex = idx;
+        setRevEditing(true);
 
-        $date.value = r.date || "";
-        // sync lunar from date first, then overwrite by saved lunar (nếu có)
-        syncLunarFromDate();
-        $lunarDate.value = r.lunarDate || $lunarDate.value;
+        $revDate.value = r.date || "";
+        revSyncLunar();
+        $revLunarDate.value = r.lunarDate || $revLunarDate.value;
+        $revCustomerName.value = r.customerName || "";
 
-        $customerName.value = r.customerName || "";
+        $revRoosterCount.value = r.roosterCount ?? 0;
+        $revRoosterKg.value = r.roosterKg ?? 0;
+        $revRoosterPrice.value = r.roosterPrice ?? "";
 
-        $roosterCount.value = r.roosterCount ?? 0;
-        $roosterKg.value = r.roosterKg ?? 0;
-        $roosterPrice.value = r.roosterPrice ?? "";
+        $revHenCount.value = r.henCount ?? 0;
+        $revHenKg.value = r.henKg ?? 0;
+        $revHenPrice.value = r.henPrice ?? "";
 
-        $henCount.value = r.henCount ?? 0;
-        $henKg.value = r.henKg ?? 0;
-        $henPrice.value = r.henPrice ?? "";
+        $revLabor.value = r.labor ? String(r.labor) : "";
+        $revReceived.value = (r.received === null) ? "" : String(r.received);
 
-        calcPreview();
-
+        revCalcPreview();
         scrollToEl($revenueCard);
-        $customerName.focus();
+        $revCustomerName.focus();
       }
     });
 
-    $clearBtn.addEventListener("click", () => {
-      if(!rows.length) return;
-      if(confirm("Xoá toàn bộ dữ liệu doanh thu?")) {
-        rows = [];
+    $revClearBtn.addEventListener("click", () => {
+      if(!revenueRows.length) return;
+      if(confirm("Xoá toàn bộ dữ liệu doanh thu?")){
+        revenueRows = [];
         saveRevenue();
         renderRevenue();
-        editingRevenueIndex = null;
-        setRevenueEditing(false);
-        resetRevenueForm(true);
+        revEditingIndex = null;
+        setRevEditing(false);
+        resetRevForm();
       }
     });
 
-    $exportBtn.addEventListener("click", () => {
+    $revExportBtn.addEventListener("click", () => {
       const header = [
         "Ngay_duong_lich","Lich_am","Ten_khach_hang",
         "Trong_con","Trong_kg","Gia_trong_vnd_kg",
         "Mai_con","Mai_kg","Gia_mai_vnd_kg",
-        "Tong_con","Tong_kg","Thanh_tien"
+        "Tong_con","Tong_kg",
+        "Tong_tinh","Tien_cong","Tien_nhan"
       ];
       const lines = [header.join(",")];
 
-      rows.slice().reverse().forEach(r => {
+      const safe = (s) => String(s ?? "").replaceAll(",", " ");
+
+      revenueRows.slice().reverse().forEach(r => {
         const cSum = r.roosterCount + r.henCount;
         const kSum = r.roosterKg + r.henKg;
-        const amount = (r.roosterKg * r.roosterPrice) + (r.henKg * r.henPrice);
-
-        const safe = (s) => String(s ?? "").replaceAll(",", " ");
+        const computed = (r.roosterKg * r.roosterPrice) + (r.henKg * r.henPrice);
+        const received = (r.received === null ? computed : r.received);
 
         lines.push([
-          safe(r.date),
-          safe(r.lunarDate),
-          safe(r.customerName),
-
+          safe(r.date), safe(r.lunarDate), safe(r.customerName),
           r.roosterCount, r.roosterKg, r.roosterPrice,
           r.henCount, r.henKg, r.henPrice,
-          cSum, kSum, amount
+          cSum, kSum,
+          computed, r.labor, received
         ].join(","));
       });
 
-      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const blob = new Blob([lines.join("\n")], { type:"text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "doanh_thu_ban_ga_con_kg_lich_am.csv";
+      a.download = "doanh_thu_ban_ga.csv";
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     });
 
-    // ===== Orders add/update/cancel =====
-    function getOrderFormDataOrAlert(){
-      const orderDate = $orderDate.value;
-      const customer = $customer.value.trim();
-      const phone = $phone.value.trim();
-      const status = $status.value;
-      const content = $orderContent.value.trim();
-      const note = $orderNote.value.trim();
-
-      if(!orderDate){
-        alert("Vui lòng chọn ngày đặt.");
-        return null;
-      }
-      if(!customer && !phone){
-        alert("Nhập ít nhất Tên khách hoặc SĐT.");
-        return null;
-      }
-      if(!content){
-        alert("Vui lòng nhập Nội dung đặt.");
-        return null;
-      }
-      return { orderDate, customer, phone, status, content, note };
-    }
-
+    // =================== Orders actions ===================
     $addOrderBtn.addEventListener("click", () => {
-      const data = getOrderFormDataOrAlert();
+      const data = getOrderDataOrAlert();
       if(!data) return;
 
-      if(editingOrderIndex === null){
-        orders.unshift(data);
-      }else{
-        orders[editingOrderIndex] = data;
-      }
+      if(orderEditingIndex === null) orders.unshift(data);
+      else orders[orderEditingIndex] = data;
 
       saveOrders();
       renderOrders();
 
-      editingOrderIndex = null;
+      orderEditingIndex = null;
       setOrderEditing(false);
-      resetOrderForm(true);
+      resetOrderForm();
       $customer.focus();
     });
 
     $cancelOrderEditBtn.addEventListener("click", () => {
-      editingOrderIndex = null;
+      orderEditingIndex = null;
       setOrderEditing(false);
-      resetOrderForm(true);
+      resetOrderForm();
     });
 
     $orderTbody.addEventListener("click", (e) => {
@@ -1022,10 +1351,10 @@
         const idx = Number(delBtn.getAttribute("data-odel"));
         if(!Number.isFinite(idx)) return;
 
-        if(editingOrderIndex === idx){
-          editingOrderIndex = null;
+        if(orderEditingIndex === idx){
+          orderEditingIndex = null;
           setOrderEditing(false);
-          resetOrderForm(true);
+          resetOrderForm();
         }
 
         orders.splice(idx, 1);
@@ -1040,10 +1369,13 @@
         const o = orders[idx];
         if(!o) return;
 
-        editingOrderIndex = idx;
+        orderEditingIndex = idx;
         setOrderEditing(true);
 
         $orderDate.value = o.orderDate || "";
+        orderSyncLunar();
+        $orderLunarDate.value = o.lunarDate || $orderLunarDate.value;
+
         $customer.value = o.customer || "";
         $phone.value = o.phone || "";
         $status.value = o.status || "Mới";
@@ -1057,51 +1389,176 @@
 
     $clearOrderBtn.addEventListener("click", () => {
       if(!orders.length) return;
-      if(confirm("Xoá toàn bộ note đặt hàng?")) {
+      if(confirm("Xoá toàn bộ note đặt hàng?")){
         orders = [];
         saveOrders();
         renderOrders();
-        editingOrderIndex = null;
+        orderEditingIndex = null;
         setOrderEditing(false);
-        resetOrderForm(true);
+        resetOrderForm();
       }
     });
 
     $exportOrderBtn.addEventListener("click", () => {
-      const header = ["Ngay_dat","Khach","SDT","Noi_dung","Ghi_chu","Trang_thai"];
+      const header = ["Ngay_dat","Lich_am","Khach","SDT","Noi_dung","Ghi_chu","Trang_thai"];
       const lines = [header.join(",")];
 
+      const safe = (s) => String(s ?? "").replaceAll(",", " ");
+
       orders.slice().reverse().forEach(o => {
-        const row = [
-          (o.orderDate || "").replaceAll(",", " "),
-          (o.customer || "").replaceAll(",", " "),
-          (o.phone || "").replaceAll(",", " "),
-          (o.content || "").replaceAll(",", " "),
-          (o.note || "").replaceAll(",", " "),
-          (o.status || "").replaceAll(",", " ")
-        ];
-        lines.push(row.join(","));
+        lines.push([
+          safe(o.orderDate), safe(o.lunarDate),
+          safe(o.customer), safe(o.phone),
+          safe(o.content), safe(o.note),
+          safe(o.status)
+        ].join(","));
       });
 
-      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const blob = new Blob([lines.join("\n")], { type:"text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "note_dat_hang_ban_ga.csv";
+      a.download = "note_dat_hang.csv";
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     });
 
-    // ===== Start =====
+    // =================== Damage actions ===================
+    $damAddBtn.addEventListener("click", () => {
+      const data = getDamageDataOrAlert();
+      if(!data) return;
+
+      if(damEditingIndex === null) damageRows.unshift(data);
+      else damageRows[damEditingIndex] = data;
+
+      saveDamage();
+      renderDamage();
+
+      damEditingIndex = null;
+      setDamEditing(false);
+      resetDamForm();
+      $damRoosterCount.focus();
+    });
+
+    $damCancelEditBtn.addEventListener("click", () => {
+      damEditingIndex = null;
+      setDamEditing(false);
+      resetDamForm();
+    });
+
+    $damTbody.addEventListener("click", (e) => {
+      const delBtn = e.target.closest("button[data-ddel]");
+      const editBtn = e.target.closest("button[data-dedit]");
+
+      if(delBtn){
+        const idx = Number(delBtn.getAttribute("data-ddel"));
+        if(!Number.isFinite(idx)) return;
+
+        if(damEditingIndex === idx){
+          damEditingIndex = null;
+          setDamEditing(false);
+          resetDamForm();
+        }
+
+        damageRows.splice(idx, 1);
+        saveDamage();
+        renderDamage();
+        return;
+      }
+
+      if(editBtn){
+        const idx = Number(editBtn.getAttribute("data-dedit"));
+        if(!Number.isFinite(idx)) return;
+        const d = damageRows[idx];
+        if(!d) return;
+
+        damEditingIndex = idx;
+        setDamEditing(true);
+
+        $damDate.value = d.date || "";
+
+        $damRoosterCount.value = d.roosterCount ?? 0;
+        $damRoosterKg.value = d.roosterKg ?? 0;
+        $damRoosterPrice.value = d.roosterPrice ?? "";
+
+        $damHenCount.value = d.henCount ?? 0;
+        $damHenKg.value = d.henKg ?? 0;
+        $damHenPrice.value = d.henPrice ?? "";
+
+        damCalcPreview();
+        scrollToEl($damageCard);
+        $damRoosterCount.focus();
+      }
+    });
+
+    $damClearBtn.addEventListener("click", () => {
+      if(!damageRows.length) return;
+      if(confirm("Xoá toàn bộ bảng thiệt hại?")){
+        damageRows = [];
+        saveDamage();
+        renderDamage();
+        damEditingIndex = null;
+        setDamEditing(false);
+        resetDamForm();
+      }
+    });
+
+    $damExportBtn.addEventListener("click", () => {
+      const header = [
+        "Ngay",
+        "Trong_con","Trong_kg","Gia_trong_vnd_kg",
+        "Mai_con","Mai_kg","Gia_mai_vnd_kg",
+        "Tong_con","Tong_kg","Tong_tien"
+      ];
+      const lines = [header.join(",")];
+
+      damageRows.slice().reverse().forEach(d => {
+        const cSum = d.roosterCount + d.henCount;
+        const kSum = d.roosterKg + d.henKg;
+        const money = (d.roosterKg * d.roosterPrice) + (d.henKg * d.henPrice);
+
+        lines.push([
+          d.date,
+          d.roosterCount, d.roosterKg, d.roosterPrice,
+          d.henCount, d.henKg, d.henPrice,
+          cSum, kSum, money
+        ].join(","));
+      });
+
+      const blob = new Blob([lines.join("\n")], { type:"text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "thiet_hai_ban_ga.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // =================== Wire edit button labels on/off ===================
+    function updateEditingLabels(){
+      setRevEditing(revEditingIndex !== null);
+      setOrderEditing(orderEditingIndex !== null);
+      setDamEditing(damEditingIndex !== null);
+    }
+
+    // =================== Start ===================
     loadRevenue();
     loadOrders();
+    loadDamage();
+
     renderRevenue();
     renderOrders();
-    calcPreview();
-    // nếu form lunar đang trống, tự sync luôn
-    syncLunarFromDate();
+    renderDamage();
+
+    updateEditingLabels();
+    revSyncLunar();
+    orderSyncLunar();
+    revCalcPreview();
+    damCalcPreview();
   </script>
 </body>
 </html>
