@@ -2,13 +2,12 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <!-- iPhone X + tai thỏ -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Doanh Thu Bán Gà</title>
   <style>
     :root{
-      --bg:#0b1220; --card:#0f1a33; --muted:#94a3b8; --text:#e2e8f0;
-      --line:#233256; --accent:#38bdf8; --danger:#fb7185; --ok:#34d399;
+      --bg:#0b1220; --muted:#94a3b8; --text:#e2e8f0;
+      --danger:#fb7185; --ok:#34d399; --info:#38bdf8;
     }
     *{box-sizing:border-box}
     body{
@@ -34,9 +33,17 @@
       overflow:hidden;
     }
     .muted{color:var(--muted)}
-    .row{display:grid; gap:10px; grid-template-columns: repeat(6, 1fr); align-items:end}
-    .order-grid{display:grid; gap:10px; grid-template-columns: repeat(4, 1fr); align-items:end}
     label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+
+    /* Form doanh thu: 10 ô */
+    .row{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(10, 1fr);
+      align-items:end
+    }
+
+    .order-grid{display:grid; gap:10px; grid-template-columns: repeat(4, 1fr); align-items:end}
+
     input, select, textarea{
       width:100%; padding:10px 10px;
       border-radius:10px; border:1px solid rgba(255,255,255,.12);
@@ -44,12 +51,14 @@
       color:var(--text);
       outline:none;
       font-family: inherit;
+      font-size:16px; /* tránh iOS auto-zoom */
     }
     textarea{min-height:40px; resize:vertical}
     input:focus, select:focus, textarea:focus{
       border-color: rgba(56,189,248,.7);
       box-shadow:0 0 0 3px rgba(56,189,248,.15)
     }
+
     .btns{display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
     button{
       border:none; cursor:pointer; border-radius:10px;
@@ -60,8 +69,21 @@
     button:hover{filter:brightness(1.08)}
     .danger{background: rgba(251,113,133,.14); border-color: rgba(251,113,133,.25); color:#ffd1d9}
     .ok{background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.25); color:#d7ffee}
+    .ghost{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color:#e2e8f0}
+
+    .btn-mini{
+      padding:7px 10px;
+      font-size:13px;
+      border-radius:9px;
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+      margin-right:8px;
+      white-space:nowrap;
+    }
+
     .table-wrap{overflow:auto; border-radius:12px; border:1px solid rgba(255,255,255,.10)}
-    table{width:100%; border-collapse:collapse; min-width:900px; background: rgba(0,0,0,.18)}
+    table{width:100%; border-collapse:collapse; min-width:1300px; background: rgba(0,0,0,.18)}
     thead th{
       text-align:left; font-size:12px; color:var(--muted);
       padding:12px; background: rgba(255,255,255,.04);
@@ -75,6 +97,7 @@
     }
     tbody tr:hover{background: rgba(255,255,255,.03)}
     .num{text-align:right; font-variant-numeric: tabular-nums;}
+
     .totalbar{
       display:flex; gap:12px; align-items:center; justify-content:space-between;
       padding:12px; border:1px dashed rgba(255,255,255,.18);
@@ -94,11 +117,11 @@
     .section-title .muted{font-size:12px}
 
     @media (max-width: 900px){
-      .row{grid-template-columns: 1fr; }
+      .row{grid-template-columns: 1fr;}
       .order-grid{grid-template-columns: 1fr;}
       .btns{justify-content:stretch}
       button{flex:1}
-      table{min-width:760px;}
+      table{min-width:1200px;}
     }
 
     /* ==== iPhone X (375x812, DPR 3) - tối ưu riêng ==== */
@@ -107,19 +130,9 @@
       and (device-height: 812px)
       and (-webkit-device-pixel-ratio: 3) {
 
-      .wrap{
-        margin: 14px auto;
-        padding: 0 12px;
-      }
+      .wrap{ margin: 14px auto; padding: 0 12px; }
       h1{font-size: 18px; margin-bottom: 12px;}
       .card{padding: 12px; border-radius: 12px;}
-
-      /* iOS: tránh auto-zoom khi focus input */
-      input, select, textarea{
-        font-size: 16px;
-        padding: 12px 12px;
-        border-radius: 12px;
-      }
 
       .row, .order-grid{
         grid-template-columns: 1fr;
@@ -143,7 +156,7 @@
       .totalbar .big{font-size: 18px;}
       .pill{width:100%; justify-content: space-between; padding: 8px 10px;}
 
-      table{min-width:760px;}
+      table{min-width:1200px;}
       thead th, tbody td{padding:10px;}
     }
   </style>
@@ -153,28 +166,47 @@
     <h1>Doanh Thu Bán Gà</h1>
 
     <div class="grid">
-      <!-- ====== DOANH THU ====== -->
-      <div class="card">
+      <!-- ====== DOANH THU (số con + kg + 2 đơn giá) ====== -->
+      <div class="card" id="revenueCard">
         <div class="row">
           <div>
             <label for="date">Ngày</label>
             <input id="date" type="date" />
           </div>
+
           <div>
-            <label for="rooster">Gà trống (con)</label>
-            <input id="rooster" type="number" min="0" step="1" value="0" />
+            <label for="roosterCount">Gà trống (con)</label>
+            <input id="roosterCount" type="number" min="0" step="1" value="0" />
           </div>
           <div>
-            <label for="hen">Gà mái (con)</label>
-            <input id="hen" type="number" min="0" step="1" value="0" />
+            <label for="roosterKg">Gà trống (kg)</label>
+            <input id="roosterKg" type="number" min="0" step="0.1" value="0" />
           </div>
           <div>
-            <label for="price">Đơn giá (VND / con)</label>
-            <input id="price" type="number" min="0" step="1000" placeholder="Ví dụ: 120000" />
+            <label for="roosterPrice">Đơn giá trống (VND/kg)</label>
+            <input id="roosterPrice" type="number" min="0" step="1000" placeholder="Ví dụ: 120000" />
+          </div>
+
+          <div>
+            <label for="henCount">Gà mái (con)</label>
+            <input id="henCount" type="number" min="0" step="1" value="0" />
           </div>
           <div>
-            <label>Số gà đã bán</label>
-            <input id="sold" type="text" disabled value="0" />
+            <label for="henKg">Gà mái (kg)</label>
+            <input id="henKg" type="number" min="0" step="0.1" value="0" />
+          </div>
+          <div>
+            <label for="henPrice">Đơn giá mái (VND/kg)</label>
+            <input id="henPrice" type="number" min="0" step="1000" placeholder="Ví dụ: 110000" />
+          </div>
+
+          <div>
+            <label>Tổng số gà</label>
+            <input id="totalCount" type="text" disabled value="0 con" />
+          </div>
+          <div>
+            <label>Tổng kg</label>
+            <input id="totalKg" type="text" disabled value="0 kg" />
           </div>
           <div>
             <label>Thành tiền</label>
@@ -183,16 +215,21 @@
         </div>
 
         <div style="display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap">
-          <div class="pill">Tự tính: <b>Số gà đã bán = trống + mái</b></div>
+          <div class="pill">Tính tiền: <b>(kg trống × giá trống) + (kg mái × giá mái)</b></div>
           <div class="btns">
             <button class="ok" id="addBtn">+ Thêm dòng</button>
+            <button class="ghost" id="cancelEditBtn" style="display:none">Huỷ sửa</button>
             <button id="exportBtn">Xuất CSV</button>
             <button class="danger" id="clearBtn">Xoá tất cả</button>
           </div>
         </div>
 
+        <div class="hint" id="editHint" style="display:none">
+          Bạn đang <b>sửa</b> một dòng. Nhấn <b>Cập nhật</b> để lưu, hoặc <b>Huỷ sửa</b>.
+        </div>
+
         <div class="hint">
-          Dữ liệu được lưu trong trình duyệt (localStorage). Mở lại file vẫn còn dữ liệu.
+          Dữ liệu lưu trong trình duyệt (localStorage). Mở lại file vẫn còn.
         </div>
       </div>
 
@@ -203,9 +240,10 @@
             <div class="big" id="grandTotal">0 ₫</div>
           </div>
           <div class="pill">
-            Tổng số gà:
-            <b id="grandSold">0</b>
-            (Trống <b id="grandRooster">0</b> · Mái <b id="grandHen">0</b>)
+            Tổng:
+            <b id="grandCount">0</b> con · <b id="grandKg">0</b> kg
+            (Trống <b id="grandRoosterCount">0</b> con/<b id="grandRoosterKg">0</b> kg ·
+             Mái <b id="grandHenCount">0</b> con/<b id="grandHenKg">0</b> kg)
           </div>
         </div>
 
@@ -216,10 +254,17 @@
             <thead>
               <tr>
                 <th>Ngày</th>
-                <th class="num">Gà trống</th>
-                <th class="num">Gà mái</th>
-                <th class="num">Số gà đã bán</th>
-                <th class="num">Đơn giá</th>
+
+                <th class="num">Trống (con)</th>
+                <th class="num">Trống (kg)</th>
+                <th class="num">Giá trống</th>
+
+                <th class="num">Mái (con)</th>
+                <th class="num">Mái (kg)</th>
+                <th class="num">Giá mái</th>
+
+                <th class="num">Tổng con</th>
+                <th class="num">Tổng kg</th>
                 <th class="num">Thành tiền</th>
                 <th>Thao tác</th>
               </tr>
@@ -229,8 +274,8 @@
         </div>
       </div>
 
-      <!-- ====== BẢNG NOTE ĐẶT HÀNG ====== -->
-      <div class="card">
+      <!-- ====== NOTE ĐẶT HÀNG ====== -->
+      <div class="card" id="orderCard">
         <div class="section-title">
           <h2>Note đặt hàng</h2>
           <div class="muted">Lưu danh sách khách đặt / ghi chú giao hàng</div>
@@ -260,8 +305,8 @@
           </div>
 
           <div style="grid-column: 1 / -1;">
-            <label for="orderContent">Nội dung đặt (gà trống/mái, số lượng, giờ giao...)</label>
-            <textarea id="orderContent" placeholder="Ví dụ: 2 gà trống + 3 gà mái, giao 18:30"></textarea>
+            <label for="orderContent">Nội dung đặt (trống/mái, con/kg, giờ giao...)</label>
+            <textarea id="orderContent" placeholder="Ví dụ: Trống 2 con (3.2kg), Mái 1 con (1.6kg), giao 18:30"></textarea>
           </div>
 
           <div style="grid-column: 1 / -1;">
@@ -274,13 +319,18 @@
           <div class="pill">Tổng đơn: <b id="orderCount">0</b></div>
           <div class="btns">
             <button class="ok" id="addOrderBtn">+ Thêm note</button>
+            <button class="ghost" id="cancelOrderEditBtn" style="display:none">Huỷ sửa</button>
             <button id="exportOrderBtn">Xuất CSV</button>
             <button class="danger" id="clearOrderBtn">Xoá tất cả</button>
           </div>
         </div>
 
+        <div class="hint" id="orderEditHint" style="display:none">
+          Bạn đang <b>sửa</b> một note. Nhấn <b>Cập nhật</b> để lưu, hoặc <b>Huỷ sửa</b>.
+        </div>
+
         <div class="hint">
-          Mẹo: Bạn có thể dùng “Trạng thái” để theo dõi đơn (Mới → Đang xử lý → Đã giao).
+          Mẹo: Dùng “Trạng thái” để theo dõi đơn (Mới → Đang xử lý → Đã giao).
         </div>
       </div>
 
@@ -309,44 +359,75 @@
   <script>
     // ===== Helpers =====
     const VND = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
+    const NF  = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 });
     const fmtMoney = (n) => VND.format(Number.isFinite(n) ? n : 0);
-    const toInt = (v) => {
-      const n = Math.floor(Number(v));
+    const fmtKg = (n) => `${NF.format(Number.isFinite(n) ? n : 0)} kg`;
+    const fmtCon = (n) => `${Number.isFinite(n) ? n : 0} con`;
+
+    const toKg = (v) => {
+      const n = Number(v);
       return Number.isFinite(n) && n >= 0 ? n : 0;
     };
     const toNum = (v) => {
       const n = Number(v);
       return Number.isFinite(n) && n >= 0 ? n : 0;
     };
+    const toInt = (v) => {
+      const n = Math.floor(Number(v));
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    };
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
     }[m]));
 
+    const scrollToEl = (el) => {
+      try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch {}
+    };
+
     // ===== State =====
-    const LS_REVENUE = "ga_doanh_thu_v1";
-    const LS_ORDERS  = "ga_orders_v1";
+    const LS_REVENUE = "ga_doanh_thu_con_kg_v2";
+    const LS_ORDERS  = "ga_orders_v2";
     let rows = [];
     let orders = [];
 
+    let editingRevenueIndex = null;
+    let editingOrderIndex = null;
+
     // ===== DOM (Doanh thu) =====
+    const $revenueCard = document.getElementById("revenueCard");
     const $date = document.getElementById("date");
-    const $rooster = document.getElementById("rooster");
-    const $hen = document.getElementById("hen");
-    const $price = document.getElementById("price");
-    const $sold = document.getElementById("sold");
+
+    const $roosterCount = document.getElementById("roosterCount");
+    const $roosterKg = document.getElementById("roosterKg");
+    const $roosterPrice = document.getElementById("roosterPrice");
+
+    const $henCount = document.getElementById("henCount");
+    const $henKg = document.getElementById("henKg");
+    const $henPrice = document.getElementById("henPrice");
+
+    const $totalCount = document.getElementById("totalCount");
+    const $totalKg = document.getElementById("totalKg");
     const $amount = document.getElementById("amount");
+
     const $tbody = document.getElementById("tbody");
 
     const $grandTotal = document.getElementById("grandTotal");
-    const $grandSold = document.getElementById("grandSold");
-    const $grandRooster = document.getElementById("grandRooster");
-    const $grandHen = document.getElementById("grandHen");
+    const $grandCount = document.getElementById("grandCount");
+    const $grandKg = document.getElementById("grandKg");
+    const $grandRoosterCount = document.getElementById("grandRoosterCount");
+    const $grandRoosterKg = document.getElementById("grandRoosterKg");
+    const $grandHenCount = document.getElementById("grandHenCount");
+    const $grandHenKg = document.getElementById("grandHenKg");
 
     const $addBtn = document.getElementById("addBtn");
+    const $cancelEditBtn = document.getElementById("cancelEditBtn");
+    const $editHint = document.getElementById("editHint");
+
     const $clearBtn = document.getElementById("clearBtn");
     const $exportBtn = document.getElementById("exportBtn");
 
     // ===== DOM (Orders) =====
+    const $orderCard = document.getElementById("orderCard");
     const $orderDate = document.getElementById("orderDate");
     const $customer = document.getElementById("customer");
     const $phone = document.getElementById("phone");
@@ -357,6 +438,9 @@
     const $orderTbody = document.getElementById("orderTbody");
 
     const $addOrderBtn = document.getElementById("addOrderBtn");
+    const $cancelOrderEditBtn = document.getElementById("cancelOrderEditBtn");
+    const $orderEditHint = document.getElementById("orderEditHint");
+
     const $clearOrderBtn = document.getElementById("clearOrderBtn");
     const $exportOrderBtn = document.getElementById("exportOrderBtn");
 
@@ -368,23 +452,31 @@
       const dd = String(today.getDate()).padStart(2,"0");
       $date.value = `${yyyy}-${mm}-${dd}`;
 
-      // datetime-local default: now (yyyy-mm-ddThh:mm)
       const hh = String(today.getHours()).padStart(2,"0");
       const mi = String(today.getMinutes()).padStart(2,"0");
       $orderDate.value = `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
     })();
 
-    // ===== Live calc (Doanh thu) =====
+    // ===== Live calc =====
     function calcPreview(){
-      const r = toInt($rooster.value);
-      const h = toInt($hen.value);
-      const p = toNum($price.value);
-      const sold = r + h;
-      const amount = sold * p;
-      $sold.value = sold;
+      const rC = toInt($roosterCount.value);
+      const hC = toInt($henCount.value);
+
+      const rKg = toKg($roosterKg.value);
+      const hKg = toKg($henKg.value);
+
+      const rP = toNum($roosterPrice.value);
+      const hP = toNum($henPrice.value);
+
+      const totalCount = rC + hC;
+      const totalKg = rKg + hKg;
+      const amount = (rKg * rP) + (hKg * hP);
+
+      $totalCount.value = fmtCon(totalCount);
+      $totalKg.value = fmtKg(totalKg);
       $amount.value = fmtMoney(amount);
     }
-    [$rooster, $hen, $price].forEach(el => el.addEventListener("input", calcPreview));
+    [$roosterCount,$henCount,$roosterKg,$henKg,$roosterPrice,$henPrice].forEach(el => el.addEventListener("input", calcPreview));
     calcPreview();
 
     // ===== Persistence =====
@@ -395,7 +487,18 @@
         rows = raw ? JSON.parse(raw) : [];
         if(!Array.isArray(rows)) rows = [];
       }catch{ rows = []; }
+
+      rows = rows.map(r => ({
+        date: r?.date ?? "",
+        roosterCount: toInt(r?.roosterCount),
+        roosterKg: toKg(r?.roosterKg),
+        roosterPrice: toNum(r?.roosterPrice),
+        henCount: toInt(r?.henCount),
+        henKg: toKg(r?.henKg),
+        henPrice: toNum(r?.henPrice),
+      }));
     }
+
     function saveOrders(){ localStorage.setItem(LS_ORDERS, JSON.stringify(orders)); }
     function loadOrders(){
       try{
@@ -405,42 +508,136 @@
       }catch{ orders = []; }
     }
 
-    // ===== Render (Doanh thu) =====
+    // ===== Form reset / edit state =====
+    function setRevenueEditing(on){
+      $cancelEditBtn.style.display = on ? "" : "none";
+      $editHint.style.display = on ? "" : "none";
+      $addBtn.textContent = on ? "Cập nhật" : "+ Thêm dòng";
+    }
+    function resetRevenueForm(keepDate=true){
+      if(!keepDate){
+        // nếu muốn reset ngày thì bỏ comment
+        // $date.value = "";
+      }
+      $roosterCount.value = 0;
+      $henCount.value = 0;
+      $roosterKg.value = 0;
+      $henKg.value = 0;
+      $roosterPrice.value = "";
+      $henPrice.value = "";
+      calcPreview();
+    }
+
+    function setOrderEditing(on){
+      $cancelOrderEditBtn.style.display = on ? "" : "none";
+      $orderEditHint.style.display = on ? "" : "none";
+      $addOrderBtn.textContent = on ? "Cập nhật" : "+ Thêm note";
+    }
+    function resetOrderForm(keepDate=true){
+      if(!keepDate){
+        // $orderDate.value = "";
+      }
+      $customer.value = "";
+      $phone.value = "";
+      $status.value = "Mới";
+      $orderContent.value = "";
+      $orderNote.value = "";
+    }
+
+    // ===== Validate revenue input =====
+    function getRevenueFormDataOrAlert(){
+      const date = $date.value;
+
+      const roosterCount = toInt($roosterCount.value);
+      const henCount = toInt($henCount.value);
+
+      const roosterKg = toKg($roosterKg.value);
+      const henKg = toKg($henKg.value);
+
+      const roosterPrice = toNum($roosterPrice.value);
+      const henPrice = toNum($henPrice.value);
+
+      if(!date){
+        alert("Vui lòng chọn ngày.");
+        return null;
+      }
+      if(roosterKg + henKg <= 0){
+        alert("Tổng kg phải > 0 (vì tính tiền theo kg).");
+        return null;
+      }
+      if(roosterKg > 0 && roosterPrice <= 0){
+        alert("Bạn nhập kg trống > 0 thì đơn giá trống phải > 0.");
+        return null;
+      }
+      if(henKg > 0 && henPrice <= 0){
+        alert("Bạn nhập kg mái > 0 thì đơn giá mái phải > 0.");
+        return null;
+      }
+
+      return { date, roosterCount, roosterKg, roosterPrice, henCount, henKg, henPrice };
+    }
+
+    // ===== Render Revenue =====
     function renderRevenue(){
       $tbody.innerHTML = "";
-      let totalMoney = 0, totalSold = 0, totalR = 0, totalH = 0;
+
+      let totalMoney = 0;
+      let totalCount = 0;
+      let totalKg = 0;
+
+      let totalRC = 0, totalHC = 0;
+      let totalRK = 0, totalHK = 0;
 
       rows.forEach((row, idx) => {
         const tr = document.createElement("tr");
-        const sold = row.rooster + row.hen;
-        const amount = sold * row.price;
+
+        const cSum = row.roosterCount + row.henCount;
+        const kSum = row.roosterKg + row.henKg;
+        const amount = (row.roosterKg * row.roosterPrice) + (row.henKg * row.henPrice);
 
         totalMoney += amount;
-        totalSold += sold;
-        totalR += row.rooster;
-        totalH += row.hen;
+        totalCount += cSum;
+        totalKg += kSum;
+
+        totalRC += row.roosterCount;
+        totalHC += row.henCount;
+        totalRK += row.roosterKg;
+        totalHK += row.henKg;
 
         tr.innerHTML = `
-          <td>${esc(row.date || "")}</td>
-          <td class="num">${row.rooster}</td>
-          <td class="num">${row.hen}</td>
-          <td class="num"><b>${sold}</b></td>
-          <td class="num">${fmtMoney(row.price)}</td>
+          <td>${esc(row.date)}</td>
+
+          <td class="num">${row.roosterCount}</td>
+          <td class="num">${NF.format(row.roosterKg)}</td>
+          <td class="num">${fmtMoney(row.roosterPrice)}</td>
+
+          <td class="num">${row.henCount}</td>
+          <td class="num">${NF.format(row.henKg)}</td>
+          <td class="num">${fmtMoney(row.henPrice)}</td>
+
+          <td class="num"><b>${cSum}</b></td>
+          <td class="num"><b>${NF.format(kSum)}</b></td>
           <td class="num"><b>${fmtMoney(amount)}</b></td>
+
           <td>
-            <button class="danger" data-del="${idx}" title="Xoá dòng">Xoá</button>
+            <button class="btn-mini ok" data-edit="${idx}">Sửa</button>
+            <button class="btn-mini danger" data-del="${idx}">Xoá</button>
           </td>
         `;
         $tbody.appendChild(tr);
       });
 
       $grandTotal.textContent = fmtMoney(totalMoney);
-      $grandSold.textContent = totalSold;
-      $grandRooster.textContent = totalR;
-      $grandHen.textContent = totalH;
+      $grandCount.textContent = totalCount;
+      $grandKg.textContent = NF.format(totalKg);
+
+      $grandRoosterCount.textContent = totalRC;
+      $grandHenCount.textContent = totalHC;
+      $grandRoosterKg.textContent = NF.format(totalRK);
+      $grandHenKg.textContent = NF.format(totalHK);
     }
 
-    // ===== Render (Orders) =====
+    // ===== Render Orders =====
     function renderOrders(){
       $orderTbody.innerHTML = "";
       $orderCount.textContent = orders.length;
@@ -455,52 +652,83 @@
           <td>${esc(o.note || "")}</td>
           <td><b>${esc(o.status || "Mới")}</b></td>
           <td>
-            <button class="danger" data-odel="${idx}" title="Xoá note">Xoá</button>
+            <button class="btn-mini ok" data-oedit="${idx}">Sửa</button>
+            <button class="btn-mini danger" data-odel="${idx}">Xoá</button>
           </td>
         `;
         $orderTbody.appendChild(tr);
       });
     }
 
-    // ===== Actions (Doanh thu) =====
+    // ===== Revenue add/update/cancel =====
     $addBtn.addEventListener("click", () => {
-      const date = $date.value;
-      const rooster = toInt($rooster.value);
-      const hen = toInt($hen.value);
-      const price = toNum($price.value);
+      const data = getRevenueFormDataOrAlert();
+      if(!data) return;
 
-      if(!date){
-        alert("Vui lòng chọn ngày.");
-        return;
-      }
-      if(rooster + hen === 0){
-        alert("Số gà đã bán phải > 0 (trống + mái).");
-        return;
-      }
-      if(price === 0){
-        alert("Vui lòng nhập đơn giá > 0.");
-        return;
+      if(editingRevenueIndex === null){
+        rows.unshift(data);
+      }else{
+        rows[editingRevenueIndex] = data;
       }
 
-      rows.unshift({ date, rooster, hen, price });
       saveRevenue();
       renderRevenue();
 
-      $rooster.value = 0;
-      $hen.value = 0;
-      $price.value = "";
-      calcPreview();
-      $price.focus();
+      editingRevenueIndex = null;
+      setRevenueEditing(false);
+      resetRevenueForm(true);
+      $roosterCount.focus();
     });
 
+    $cancelEditBtn.addEventListener("click", () => {
+      editingRevenueIndex = null;
+      setRevenueEditing(false);
+      resetRevenueForm(true);
+    });
+
+    // Revenue table actions
     $tbody.addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-del]");
-      if(!btn) return;
-      const idx = Number(btn.getAttribute("data-del"));
-      if(!Number.isFinite(idx)) return;
-      rows.splice(idx, 1);
-      saveRevenue();
-      renderRevenue();
+      const delBtn = e.target.closest("button[data-del]");
+      const editBtn = e.target.closest("button[data-edit]");
+
+      if(delBtn){
+        const idx = Number(delBtn.getAttribute("data-del"));
+        if(!Number.isFinite(idx)) return;
+
+        // nếu đang sửa đúng dòng đó, huỷ sửa
+        if(editingRevenueIndex === idx){
+          editingRevenueIndex = null;
+          setRevenueEditing(false);
+          resetRevenueForm(true);
+        }
+
+        rows.splice(idx, 1);
+        saveRevenue();
+        renderRevenue();
+        return;
+      }
+
+      if(editBtn){
+        const idx = Number(editBtn.getAttribute("data-edit"));
+        if(!Number.isFinite(idx)) return;
+        const r = rows[idx];
+        if(!r) return;
+
+        editingRevenueIndex = idx;
+        setRevenueEditing(true);
+
+        $date.value = r.date || "";
+        $roosterCount.value = r.roosterCount ?? 0;
+        $roosterKg.value = r.roosterKg ?? 0;
+        $roosterPrice.value = r.roosterPrice ?? "";
+        $henCount.value = r.henCount ?? 0;
+        $henKg.value = r.henKg ?? 0;
+        $henPrice.value = r.henPrice ?? "";
+        calcPreview();
+
+        scrollToEl($revenueCard);
+        $roosterCount.focus();
+      }
     });
 
     $clearBtn.addEventListener("click", () => {
@@ -509,32 +737,47 @@
         rows = [];
         saveRevenue();
         renderRevenue();
+        editingRevenueIndex = null;
+        setRevenueEditing(false);
+        resetRevenueForm(true);
       }
     });
 
     $exportBtn.addEventListener("click", () => {
-      const header = ["Ngay","Ga_trong","Ga_mai","So_ga_da_ban","Don_gia","Thanh_tien"];
+      const header = [
+        "Ngay",
+        "Trong_con","Trong_kg","Gia_trong_vnd_kg",
+        "Mai_con","Mai_kg","Gia_mai_vnd_kg",
+        "Tong_con","Tong_kg","Thanh_tien"
+      ];
       const lines = [header.join(",")];
 
       rows.slice().reverse().forEach(r => {
-        const sold = r.rooster + r.hen;
-        const amount = sold * r.price;
-        lines.push([r.date, r.rooster, r.hen, sold, r.price, amount].join(","));
+        const cSum = r.roosterCount + r.henCount;
+        const kSum = r.roosterKg + r.henKg;
+        const amount = (r.roosterKg * r.roosterPrice) + (r.henKg * r.henPrice);
+
+        lines.push([
+          r.date,
+          r.roosterCount, r.roosterKg, r.roosterPrice,
+          r.henCount, r.henKg, r.henPrice,
+          cSum, kSum, amount
+        ].join(","));
       });
 
       const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "doanh_thu_ban_ga.csv";
+      a.download = "doanh_thu_ban_ga_con_kg.csv";
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     });
 
-    // ===== Actions (Orders) =====
-    $addOrderBtn.addEventListener("click", () => {
+    // ===== Orders add/update/cancel =====
+    function getOrderFormDataOrAlert(){
       const orderDate = $orderDate.value;
       const customer = $customer.value.trim();
       const phone = $phone.value.trim();
@@ -544,38 +787,83 @@
 
       if(!orderDate){
         alert("Vui lòng chọn ngày đặt.");
-        return;
+        return null;
       }
       if(!customer && !phone){
         alert("Nhập ít nhất Tên khách hoặc SĐT.");
-        return;
+        return null;
       }
       if(!content){
         alert("Vui lòng nhập Nội dung đặt.");
-        return;
+        return null;
+      }
+      return { orderDate, customer, phone, status, content, note };
+    }
+
+    $addOrderBtn.addEventListener("click", () => {
+      const data = getOrderFormDataOrAlert();
+      if(!data) return;
+
+      if(editingOrderIndex === null){
+        orders.unshift(data);
+      }else{
+        orders[editingOrderIndex] = data;
       }
 
-      orders.unshift({ orderDate, customer, phone, status, content, note });
       saveOrders();
       renderOrders();
 
-      // reset nhanh (giữ ngày đặt)
-      $customer.value = "";
-      $phone.value = "";
-      $status.value = "Mới";
-      $orderContent.value = "";
-      $orderNote.value = "";
+      editingOrderIndex = null;
+      setOrderEditing(false);
+      resetOrderForm(true);
       $customer.focus();
     });
 
+    $cancelOrderEditBtn.addEventListener("click", () => {
+      editingOrderIndex = null;
+      setOrderEditing(false);
+      resetOrderForm(true);
+    });
+
     $orderTbody.addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-odel]");
-      if(!btn) return;
-      const idx = Number(btn.getAttribute("data-odel"));
-      if(!Number.isFinite(idx)) return;
-      orders.splice(idx, 1);
-      saveOrders();
-      renderOrders();
+      const delBtn = e.target.closest("button[data-odel]");
+      const editBtn = e.target.closest("button[data-oedit]");
+
+      if(delBtn){
+        const idx = Number(delBtn.getAttribute("data-odel"));
+        if(!Number.isFinite(idx)) return;
+
+        if(editingOrderIndex === idx){
+          editingOrderIndex = null;
+          setOrderEditing(false);
+          resetOrderForm(true);
+        }
+
+        orders.splice(idx, 1);
+        saveOrders();
+        renderOrders();
+        return;
+      }
+
+      if(editBtn){
+        const idx = Number(editBtn.getAttribute("data-oedit"));
+        if(!Number.isFinite(idx)) return;
+        const o = orders[idx];
+        if(!o) return;
+
+        editingOrderIndex = idx;
+        setOrderEditing(true);
+
+        $orderDate.value = o.orderDate || "";
+        $customer.value = o.customer || "";
+        $phone.value = o.phone || "";
+        $status.value = o.status || "Mới";
+        $orderContent.value = o.content || "";
+        $orderNote.value = o.note || "";
+
+        scrollToEl($orderCard);
+        $customer.focus();
+      }
     });
 
     $clearOrderBtn.addEventListener("click", () => {
@@ -584,6 +872,9 @@
         orders = [];
         saveOrders();
         renderOrders();
+        editingOrderIndex = null;
+        setOrderEditing(false);
+        resetOrderForm(true);
       }
     });
 
@@ -619,6 +910,7 @@
     loadOrders();
     renderRevenue();
     renderOrders();
+    calcPreview();
   </script>
 </body>
 </html>
